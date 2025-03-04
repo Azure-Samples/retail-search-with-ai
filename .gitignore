@@ -8,7 +8,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
+# build/
 develop-eggs/
 dist/
 downloads/
@@ -169,3 +169,15 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+node_modules/
+
+
+test.py
+test*.py
+test_*.py
+test_server.py
+test.ipynb
+test*.ipynb
+evaluations*/
+eval_outputs*/
+*.zip

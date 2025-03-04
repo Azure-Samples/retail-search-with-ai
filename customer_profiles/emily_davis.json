@@ -1,0 +1,161 @@
+{
+    "customer_profile": {
+      "name": "Emily Davis",
+      "gender": "female",
+      "address": "23 Riverside Drive, Melbourne VIC 3000",
+      "latest_5_transactions": [
+        {
+          "transaction_id": "T20240715-001",
+          "purchase_date": "2024-07-15",
+          "items": [
+            {
+              "id": "572341",
+              "name": "Cozy Throw Blanket",
+              "brand": "HomeComfort",
+              "price": 20.0,
+              "quantity": 1,
+              "line_total": 20.0
+            },
+            {
+              "id": "483920",
+              "name": "Decorative Candle Set",
+              "brand": "GlowArt",
+              "price": 12.0,
+              "quantity": 2,
+              "line_total": 24.0
+            }
+          ],
+          "transaction_total": 44.0
+        },
+        {
+          "transaction_id": "T20240820-002",
+          "purchase_date": "2024-08-20",
+          "items": [
+            {
+              "id": "389210",
+              "name": "Modern Wall Clock",
+              "brand": "TimelyDesign",
+              "price": 45.0,
+              "quantity": 1,
+              "line_total": 45.0
+            },
+            {
+              "id": "239481",
+              "name": "Set of 3 Picture Frames",
+              "brand": "FrameIt",
+              "price": 12.0,
+              "quantity": 3,
+              "line_total": 36.0
+            }
+          ],
+          "transaction_total": 81.0
+        },
+        {
+          "transaction_id": "T20241005-003",
+          "purchase_date": "2024-10-05",
+          "items": [
+            {
+              "id": "129384",
+              "name": "Ceramic Dinnerware Set",
+              "brand": "DineWell",
+              "price": 55.0,
+              "quantity": 1,
+              "line_total": 55.0
+            },
+            {
+              "id": "839210",
+              "name": "Elegant Teapot",
+              "brand": "BrewElegance",
+              "price": 30.0,
+              "quantity": 1,
+              "line_total": 30.0
+            }
+          ],
+          "transaction_total": 85.0
+        },
+        {
+          "transaction_id": "T20241212-004",
+          "purchase_date": "2024-12-12",
+          "items": [
+            {
+              "id": "485739",
+              "name": "Artisan Scented Soaps (Pack of 4)",
+              "brand": "PureScents",
+              "price": 20.0,
+              "quantity": 1,
+              "line_total": 20.0
+            },
+            {
+              "id": "593820",
+              "name": "Bath Towel Set",
+              "brand": "SoftHaven",
+              "price": 40.0,
+              "quantity": 1,
+              "line_total": 40.0
+            }
+          ],
+          "transaction_total": 60.0
+        },
+        {
+          "transaction_id": "T20250108-005",
+          "purchase_date": "2025-01-08",
+          "items": [
+            {
+              "id": "783210",
+              "name": "Indoor Herb Garden Kit",
+              "brand": "GreenThumb",
+              "price": 35.0,
+              "quantity": 1,
+              "line_total": 35.0
+            },
+            {
+              "id": "982341",
+              "name": "Decorative Planter Set",
+              "brand": "PlanterPlus",
+              "price": 28.0,
+              "quantity": 2,
+              "line_total": 56.0
+            }
+          ],
+          "transaction_total": 91.0
+        }
+      ],
+      "purchase_statistics": {
+        "total_number_of_purchases": 5,
+        "total_spent": 361.0,
+        "average_transaction_price": 72.2,
+        "highest_item_price_purchased": 55.0,
+        "distribution_of_purchase_prices": {
+          "0-25": 0,
+          "26-50": 1,
+          "51-75": 1,
+          "76-100": 3,
+          "100+": 0
+        }
+      },
+      "inferred_purchasing_behavior": {
+        "purchasing_power": "Medium",
+        "price_sensitivity": "Moderate",
+        "preferred_product_types": [
+          "Home decor",
+          "Kitchenware",
+          "Personal care items",
+          "Indoor gardening"
+        ],
+        "shopping_frequency": "Occasional (every few months)",
+        "brand_loyalty": "Moderate, values quality and aesthetics",
+        "typical_cart_size": "Moderate, mixes decorative and practical items"
+      },
+      "additional_notes": {
+        "communication_preference": "Email newsletters with design and lifestyle tips",
+        "likely_future_interests": [
+          "Seasonal home decor collections",
+          "Eco-friendly kitchen accessories",
+          "Artisan crafts and unique gift items"
+        ],
+        "preferred_delivery_method": "Standard shipping with tracking",
+        "customer_since": "2024-07"
+      }
+    }
+  }
+  

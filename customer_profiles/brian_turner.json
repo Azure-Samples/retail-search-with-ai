@@ -1,0 +1,152 @@
+{
+    "customer_profile": {
+      "name": "Brian Turner",
+      "gender": "male",
+      "address": "16 Harper Street, Wendouree VIC 3355",
+      "latest_5_transactions": [
+        {
+          "transaction_id": "T20240612-001",
+          "purchase_date": "2024-06-12",
+          "items": [
+            {
+              "id": "175919",
+              "name": "Kaboodle 128mm Chrome Pasto Kitchen Handle Cabinet Accessories",
+              "brand": "Kaboodle",
+              "price": 11.4,
+              "quantity": 3,
+              "line_total": 34.2
+            }
+          ],
+          "transaction_total": 34.2
+        },
+        {
+          "transaction_id": "T20240804-002",
+          "purchase_date": "2024-08-04",
+          "items": [
+            {
+              "id": "3970377",
+              "name": "Pinnacle Hardware Timber Eye/Turnbuckle Balustrading Kit Chain Connectors",
+              "brand": "Pinnacle Hardware",
+              "price": 7.16,
+              "quantity": 2,
+              "line_total": 14.32
+            },
+            {
+              "id": "167439",
+              "name": "Pinnacle Hardware Black Timber Hook/Eye Turnbuckle Balustrading Kit Chain Connectors",
+              "brand": "Pinnacle Hardware",
+              "price": 12.08,
+              "quantity": 1,
+              "line_total": 12.08
+            }
+          ],
+          "transaction_total": 26.4
+        },
+        {
+          "transaction_id": "T20241122-003",
+          "purchase_date": "2024-11-22",
+          "items": [
+            {
+              "id": "3970378",
+              "name": "Pinnacle Hardware Timber Jaw/ Bottlescrew Balustrading Kit Chain",
+              "brand": "Pinnacle Hardware",
+              "price": 9.0,
+              "quantity": 1,
+              "line_total": 9.0
+            },
+            {
+              "id": "285468",
+              "name": "Holman 50mm x 1\" PVC Pressure Faucet Tee",
+              "brand": "Holman",
+              "price": 16.23,
+              "quantity": 1,
+              "line_total": 16.23
+            }
+          ],
+          "transaction_total": 25.23
+        },
+        {
+          "transaction_id": "T20250105-004",
+          "purchase_date": "2025-01-05",
+          "items": [
+            {
+              "id": "285451",
+              "name": "Holman 32mm x 1/2\" PVC Pressure Faucet Tee",
+              "brand": "Holman",
+              "price": 19.79,
+              "quantity": 2,
+              "line_total": 39.58
+            },
+            {
+              "id": "6240339",
+              "name": "Makita 240V AC Radio Adaptor - Skin Only",
+              "brand": "Makita",
+              "price": 40.0,
+              "quantity": 1,
+              "line_total": 40.0
+            }
+          ],
+          "transaction_total": 79.58
+        },
+        {
+          "transaction_id": "T20250110-005",
+          "purchase_date": "2025-01-10",
+          "items": [
+            {
+              "id": "285473",
+              "name": "Holman 50mm x 3/4\" PVC Pressure Faucet Tee",
+              "brand": "Holman",
+              "price": 20.89,
+              "quantity": 1,
+              "line_total": 20.89
+            },
+            {
+              "id": "3961216",
+              "name": "Pinnacle Hardware 4mm Stainless Steel Wire Eye Strap - 4 Pack Chain Connectors",
+              "brand": "Pinnacle Hardware",
+              "price": 3.9,
+              "quantity": 2,
+              "line_total": 7.8
+            }
+          ],
+          "transaction_total": 28.69
+        }
+      ],
+      "purchase_statistics": {
+        "total_number_of_purchases": 5,
+        "total_spent": 194.1,
+        "average_transaction_price": 38.82,
+        "highest_item_price_purchased": 40.0,
+        "distribution_of_purchase_prices": {
+          "0-25": 0,
+          "26-50": 4,
+          "51-75": 0,
+          "76-100": 1,
+          "100+": 0
+        }
+      },
+      "inferred_purchasing_behavior": {
+        "purchasing_power": "Low",
+        "price_sensitivity": "High",
+        "preferred_product_types": [
+          "Small hardware fittings",
+          "Low-cost accessories",
+          "Basic DIY items"
+        ],
+        "shopping_frequency": "Infrequent (once every few months)",
+        "brand_loyalty": "Low, often shops around for the best deal",
+        "typical_cart_size": "Small, usually purchases only essentials or specific items"
+      },
+      "additional_notes": {
+        "communication_preference": "Email promotions focused on discounts and specials",
+        "likely_future_interests": [
+          "Budget-friendly storage solutions",
+          "Low-cost DIY gardening or plumbing tools",
+          "Sale items and clearance events"
+        ],
+        "preferred_delivery_method": "In-store pickup to avoid delivery fees",
+        "customer_since": "2024-06"
+      }
+    }
+  }
+  

@@ -1,0 +1,537 @@
+### 1. Read the Customer's Search Query
+Analyze the customer’s query. Identify relevant keywords and phrases that indicate the product(s) or product function(s) they seek. Take into consideration the customer profile and their purchasing behavior and power.
+
+
+### 2. Reference the Database Product Categories
+You have a **comprehensive list of product categories** in the database. Before generating expanded terms:
+- **Match** customer query elements to existing product categories (and synonyms) wherever possible.  
+- If there’s **no direct match**, suggest **closest** possible categories (or subcategories).  
+- If the customer’s query describes a **complex problem**, consider **multiple product categories** that might solve it.
+
+
+### 3. Generate **Multiple** Expanded Product Search Terms
+- Produce **up to 10** variations of potential product names or functions that **exist or could exist** under the database categories.
+- Use **singular form** unless the product category inherently uses plural (“scissors,” “glasses,” etc.).
+- Avoid function words like “my,” “the,” “for,” “in,” etc.
+- Generate suitable expanded product search terms based on the customer profile and their purchasing behavior and power. For example, if the purchasing power of the customer is strong, then generate product search terms for luxury or high-quality products. If the purchasing power of the customer is low, then generaete product search terms for budget items or high value for cost items. Take their interests and gender into consideration.
+- **SUPER CRITICAL AND IMPORTANT**: The expanded product search terms should be directly relevant and contribute to to solving the problem stated by the CUSTOMER QUERY, and should be **SUPER** focused on what the customer is asking for. This is a retail shop and our primary target is to sell our goods, and so it is critical that the products align with what the customer is searching for.
+- **ALSO SUPER CRITICAL AND IMPORTANT**: you **MUST** make sure that the expanded product search terms are varied if applicable (if the user is not asking for something very specific), and introduce multiple products categories in the expanded prodcut search terms. Please introduce some variety in the product categories unless the user query is asking for something very specific. 
+- You **MUST** make sure to order the most important expanded product search terms first.
+
+### 4. Output a Valid JSON Object
+Your output must be a **single JSON** object with exactly **three keys**:  
+- `"expanded_terms"`: An array of **up to 10** product-oriented terms or synonyms.  
+- `"filters"`: A dictionary with these keys:  
+  - `"title"`, `"brand"`, `"description"`, and `"categories"`.  
+  - The values in `"title"` and `"description"` should **strictly match** relevant product categories from the database, or closely related synonyms.  
+  - Avoid problem statements.  
+- `"price"`: A dictionary for any customer-stated price constraints (or `null` if none specified).
+- Keep in mind the customer profile, and their purchasing behavior and power. Take their interests and gender into consideration.
+
+### 5. Populate the JSON Fields
+1. **expanded_terms**: Provide up to 10 singular, unambiguous product or solution terms.  
+2. **filters**: 
+   - **title**, **description**: Use synonyms, variations, or official category names from the DB.  
+   - **brand**: Include brand names if indicated. Otherwise, leave empty.  
+   - **categories**: Provide general solution/product category references that fit the query. Use the list of product categories enclosed between "## START OF DATABASE PRODUCT CATEGORIES" and "## END OF DATABASE PRODUCT CATEGORIES" to populate this field.
+   - **Match** filter values exactly to the category names in your database (or the best approximate if an exact match isn’t possible).  
+3. **price**: If “under $X” or “between $X and $Y,” reflect that as `{{"ge": X, "lte": Y}}` or `{{"lte": X}}`, etc. If no price constraints, set both `ge` and `lte` to `null`.
+
+### 6. Multi-Category Queries (Complex Problems)
+- If the customer query implies a multi-faceted solution, generate **multiple** expanded terms referencing **different** relevant categories.  
+- The filter values in `title`, `ec_name`, etc. should **reflect** those categories.
+- Keep in mind the customer profile, and their purchasing behavior and power. Take their interests and gender into consideration.
+
+### 7. Return **Only** the JSON
+Provide no extra text, disclaimers, or formatting outside the JSON object.
+
+**SUPER CRITICAL AND IMPORTANT NOTE**: The expanded product search terms should be directly relevant and contribute to to solving the problem stated by the CUSTOMER QUERY, and should be **SUPER** focused on what the customer is asking for. This is a retail shop and our primary target is to sell our goods, and so it is critical that the products align with what the customer is searching for. You **MUST** make sure to order the most important search terms first.
+
+---
+
+
+## START OF CUSTOMER SEARCH QUERY
+{query}
+## END OF CUSTOMER SEARCH QUERY
+
+
+## START OF DATABASE PRODUCT CATEGORIES
+{product_categories}
+## END OF DATABASE PRODUCT CATEGORIES
+
+
+## START OF CUSTOMER PROFILE
+{customer_profile}
+## END OF CUSTOMER PROFILE
+
+
+---
+
+## Ten Few-Shot Examples
+
+### 1. Product Does NOT Exist → Suggest Closest Match
+
+#### Example 1  
+**Original query:** `I want a flying car`  
+> No “flying car” category. Closest might be **“Electric Riding Vehicles”** or **“Motor Vehicle Power & Electrical Systems.”**
+
+
+{{
+  "expanded_terms": [
+    "electric riding vehicle",
+    "motor vehicle power system",
+    "vehicle electrical upgrade",
+    "vehicle aerial concept",
+    "vehicle engine enhancement",
+    "motor vehicle amplifier system",
+    "lightweight electric vehicle",
+    "vehicular propulsion module",
+    "urban electric commuter",
+    "personal transport innovation"
+  ],
+  "filters": {{
+    "title": [
+      "flying car",
+      "Electric Riding Vehicles"
+    ],
+    "brand": [],
+    "description": [
+      "electric riding vehicle",
+      "motor vehicle power system",
+      "vehicle electrical upgrade"
+    ],
+    "categories": [
+      "Remote & App Controlled Vehicles",
+      "Car & Vehicle Electronics",
+      "Vehicle Electronics Accessories"
+    ]
+  }},
+  "price": {{
+    "ge": null,
+    "lte": null
+  }}
+}}
+
+
+Note (not part of output): for the "categories" filter, provide general solution/product category references that fit the query. Use the list of product categories enclosed between "## START OF DATABASE PRODUCT CATEGORIES" and "## END OF DATABASE PRODUCT CATEGORIES" to populate this field.
+
+---
+
+#### Example 2  
+**Original query:** `Need a chocolate fountain`  
+> Not in the DB. Suggest alternatives like **“Food Mixers & Blenders,” “Pizza Makers & Ovens,”** etc.
+
+
+{{
+  "expanded_terms": [
+    "fondue style mixer",
+    "chocolate melting blender",
+    "dessert warming oven",
+    "candy melting pot",
+    "heated dessert fountain",
+    "chocolate dipping station",
+    "chocolate fondue cooker",
+    "hot chocolate dispenser",
+    "sweet sauce heater",
+    "gourmet chocolate melter"
+  ],
+  "filters": {{
+    "title": [
+      "chocolate fountain",
+      "Food Mixers & Blenders"
+    ],
+    "brand": [],
+    "description": [
+      "fondue style mixer",
+      "dessert warming oven",
+      "chocolate dipping station"
+    ],
+    "categories": [
+      "Home & Kitchen",
+      "Kitchen Utensils & Gadgets",
+      "Kitchen & Dining"
+    ]
+  }},
+  "price": {{
+    "ge": null,
+    "lte": null
+  }}
+}}
+
+Note (not part of output): for the "categories" filter, provide general solution/product category references that fit the query. Use the list of product categories enclosed between "## START OF DATABASE PRODUCT CATEGORIES" and "## END OF DATABASE PRODUCT CATEGORIES" to populate this field.
+
+---
+
+#### Example 3  
+**Original query:** `Glow in the dark toilet`  
+> Nearest matches: **“Toilet & Bidet Seats,” “Bathroom Accessories.”**
+
+
+{{
+  "expanded_terms": [
+    "toilet seat with night light",
+    "illuminated toilet seat",
+    "bathroom glow seat",
+    "toilet glow attachment",
+    "led toilet seat",
+    "lighted bathroom fixture",
+    "nightlight bidet seat",
+    "luminescent bathroom accessory",
+    "glowing toilet bowl seat",
+    "toilet & bidet seat upgrade"
+  ],
+  "filters": {{
+    "title": [
+      "Glow in the dark toilet",
+      "Toilet & Bidet Seats"
+    ],
+    "brand": [],
+    "description": [
+      "toilet glow attachment",
+      "illuminated toilet seat",
+      "lighted bathroom fixture"
+    ],
+    "categories": [
+      "Toilet Accessories",
+      "Toilets & Toilet Parts",
+      "Toilet Seats"
+    ]
+  }},
+  "price": {{
+    "ge": null,
+    "lte": null
+  }}
+}}
+
+Note (not part of output): for the "categories" filter, provide general solution/product category references that fit the query. Use the list of product categories enclosed between "## START OF DATABASE PRODUCT CATEGORIES" and "## END OF DATABASE PRODUCT CATEGORIES" to populate this field.
+
+---
+
+### 2. Product Category Exists (Brand/Color)
+
+#### Example 4  
+**Original query:** `red Bosch miter saw under $300`  
+> DB has **“Miter Saws”**. Brand “Bosch,” color “red,” price constraint.
+
+
+{{
+  "expanded_terms": [
+    "red Bosch miter saw",
+    "Bosch adjustable miter saw",
+    "budget miter saw",
+    "Bosch sliding miter saw",
+    "compact Bosch miter saw",
+    "Bosch bevel cutting saw",
+    "lightweight red miter saw",
+    "Bosch pro-grade saw",
+    "red Bosch cutting tool",
+    "Bosch precision miter saw"
+  ],
+  "filters": {{
+    "title": [
+      "red Bosch miter saw",
+      "Miter Saws"
+    ],
+    "brand": [
+      "Bosch"
+    ],
+    "description": [
+      "Bosch adjustable miter saw",
+      "budget miter saw",
+      "Bosch sliding miter saw"
+    ],
+    "categories": [
+      "Chainsaw Parts & Accessories",
+      "Saw Blades, Parts & Accessories",
+      "Saws"
+    ]
+  }},
+  "price": {{
+    "ge": null,
+    "lte": 300
+  }}
+}}
+
+Note (not part of output): for the "categories" filter, provide general solution/product category references that fit the query. Use the list of product categories enclosed between "## START OF DATABASE PRODUCT CATEGORIES" and "## END OF DATABASE PRODUCT CATEGORIES" to populate this field.
+
+---
+
+#### Example 5  
+**Original query:** `green Ryobi hedge trimmer`  
+> DB has **“Hedge Trimmers.”** Brand “Ryobi,” color “green.”
+
+
+{{
+  "expanded_terms": [
+    "green Ryobi hedge trimmer",
+    "Ryobi lightweight hedge trimmer",
+    "cordless hedge trimmer",
+    "Ryobi rechargeable trimmer",
+    "compact hedge trimmer",
+    "green trim tool",
+    "Ryobi electric hedge trimmer",
+    "green foliage trimmer",
+    "Ryobi landscaping trimmer",
+    "green Ryobi yard trimmer"
+  ],
+  "filters": {{
+    "title": [
+      "green Ryobi hedge trimmer",
+      "Hedge Trimmers"
+    ],
+    "brand": [
+      "Ryobi"
+    ],
+    "description": [
+      "Ryobi lightweight hedge trimmer",
+      "Ryobi rechargeable trimmer",
+      "green foliage trimmer"
+    ],
+    "categories": [
+      "Gardening & Lawn Care",
+      "Patio, Lawn & Garden"
+    ]
+  }},
+  "price": {{
+    "ge": null,
+    "lte": null
+  }}
+}}
+
+
+Note (not part of output): for the "categories" filter, provide general solution/product category references that fit the query. Use the list of product categories enclosed between "## START OF DATABASE PRODUCT CATEGORIES" and "## END OF DATABASE PRODUCT CATEGORIES" to populate this field.
+
+---
+
+#### Example 6  
+**Original query:** `black Makita drill`  
+> DB has **“Drills.”** Brand “Makita,” color “black.”
+
+
+{{
+  "expanded_terms": [
+    "black Makita drill",
+    "Makita cordless power drill",
+    "compact Makita drill",
+    "Makita black drill driver",
+    "lightweight Makita drill",
+    "black Makita impact drill",
+    "Makita brushless drill",
+    "sleek black Makita drill",
+    "Makita pro drill",
+    "Makita durable drill"
+  ],
+  "filters": {{
+    "title": [
+      "black Makita drill",
+      "Drills"
+    ],
+    "brand": [
+      "Makita"
+    ],
+    "description": [
+      "Makita cordless power drill",
+      "black Makita impact drill",
+      "Makita brushless drill"
+    ],
+    "categories": [
+      "Boring Drill Bits",
+      "Power Drill Parts & Accessories"
+    ]
+  }},
+  "price": {{
+    "ge": null,
+    "lte": null
+  }}
+}}
+
+
+Note (not part of output): for the "categories" filter, provide general solution/product category references that fit the query. Use the list of product categories enclosed between "## START OF DATABASE PRODUCT CATEGORIES" and "## END OF DATABASE PRODUCT CATEGORIES" to populate this field.
+
+
+---
+
+### 3. Complex Problem → Multi-Category Solutions
+
+#### Example 7  
+**Original query:** `my backyard is flooding after heavy rain`  
+> Multiple categories: **“Drain Rods,” “Hardware Pumps,” “Landscape Fabric,” “Garden Hoses,”** etc.
+
+
+{{
+  "expanded_terms": [
+    "drain rod set",
+    "hardware water pump",
+    "landscape fabric roll",
+    "flood prevention hose",
+    "water & flood detector",
+    "heavy-duty garden hose",
+    "outdoor drainage pump",
+    "soil drainage solution",
+    "backyard flood barrier",
+    "pump hose attachment"
+  ],
+  "filters": {{
+    "title": [
+      "Drain Rods",
+      "Hardware Pumps"
+    ],
+    "brand": [],
+    "description": [
+      "flood prevention hose",
+      "water & flood detector",
+      "outdoor drainage pump"
+    ],
+    "categories": [
+      "Pumps,
+      "Hoses"
+    ]
+  }},
+  "price": {{
+    "ge": null,
+    "lte": null
+  }}
+}}
+
+
+Note (not part of output): for the "categories" filter, provide general solution/product category references that fit the query. Use the list of product categories enclosed between "## START OF DATABASE PRODUCT CATEGORIES" and "## END OF DATABASE PRODUCT CATEGORIES" to populate this field.
+
+---
+
+#### Example 8  
+**Original query:** `stray cats keep entering my garden and damaging my plants`  
+> Potential categories: **“Fence & Gate Accessories,” “Pest Control,” “Garden Borders & Edging,” “Household Insect Repellents,” “Animal & Pet Repellents”** (if available).
+
+
+{{
+  "expanded_terms": [
+    "garden fence accessory",
+    "animal repellent",
+    "garden border edging",
+    "cat deterrent spray",
+    "gate barrier extension",
+    "pest control solution",
+    "plant protection border",
+    "fence & gate lock",
+    "garden boundary fencing",
+    "odor-based cat repellent"
+  ],
+  "filters": {{
+    "title": [
+      "Fence & Gate Accessories",
+      "Pest Control"
+    ],
+    "brand": [],
+    "description": [
+      "animal repellent",
+      "cat deterrent spray",
+      "garden fence accessory"
+    ],
+    "categories": [
+      "Gate Hardware",
+      "Door Hardware & Locks"
+    ]
+  }},
+  "price": {{
+    "ge": null,
+    "lte": null
+  }}
+}}
+
+
+Note (not part of output): for the "categories" filter, provide general solution/product category references that fit the query. Use the list of product categories enclosed between "## START OF DATABASE PRODUCT CATEGORIES" and "## END OF DATABASE PRODUCT CATEGORIES" to populate this field.
+
+---
+
+#### Example 9  
+**Original query:** `my old roof is leaking during storms`  
+> Potential categories: **“Roof Flashings,” “Roofing Shingles & Tiles,” “Protective Coatings & Sealants.”**
+
+
+{{
+  "expanded_terms": [
+    "roof flashing replacement",
+    "roofing shingles repair kit",
+    "protective roof sealant",
+    "leak barrier membrane",
+    "roof patch compound",
+    "storm-proof roofing tile",
+    "sealant underlayment roll",
+    "roofing adhesive tape",
+    "emergency leak patch kit",
+    "heavy-duty roof flashing"
+  ],
+  "filters": {{
+    "title": [
+      "Roof Flashings",
+      "Roofing Shingles & Tiles"
+    ],
+    "brand": [],
+    "description": [
+      "roof flashing replacement",
+      "roof patch compound",
+      "emergency leak patch kit"
+    ],
+    "categories": [
+      "Adhesives, Sealants & Lubricants",
+      "Maintenance, Upkeep & Repairs",
+      "Trim & Repair Kits"
+    ]
+  }},
+  "price": {{
+    "ge": null,
+    "lte": null
+  }}
+}}
+
+
+Note (not part of output): for the "categories" filter, provide general solution/product category references that fit the query. Use the list of product categories enclosed between "## START OF DATABASE PRODUCT CATEGORIES" and "## END OF DATABASE PRODUCT CATEGORIES" to populate this field.
+
+
+---
+
+#### Example 10  
+**Original query:** `my laundry room is always damp`  
+> Potential categories: **“Dehumidifiers,” “Ventilation Fans,” “Protective Coatings & Sealants,” “Moisture Control Unit”** if it exists, etc.
+
+
+{{
+  "expanded_terms": [
+    "room dehumidifier",
+    "ventilation fan",
+    "dampness prevention sealant",
+    "moisture control unit",
+    "dehumidifier filter replacement",
+    "humidity sensor alarm",
+    "air purifier filter",
+    "odor absorbing material",
+    "humidity reducing coating",
+    "laundry room moisture absorber"
+  ],
+  "filters": {{
+    "title": [
+      "Dehumidifiers",
+      "Ventilation Fans"
+    ],
+    "brand": [],
+    "description": [
+      "moisture control unit",
+      "dampness prevention sealant",
+      "humidity sensor alarm"
+    ],
+    "categories": [
+      "Lighting & Ceiling Fans",
+      "Cooling Fans",
+      "Air Conditioning",
+      "Deodorant"
+    ]
+  }},
+  "price": {{
+    "ge": null,
+    "lte": null
+  }}
+}}
+
+Note (not part of output): for the "categories" filter, provide general solution/product category references that fit the query. Use the list of product categories enclosed between "## START OF DATABASE PRODUCT CATEGORIES" and "## END OF DATABASE PRODUCT CATEGORIES" to populate this field.
+
+---

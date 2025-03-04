@@ -1,0 +1,108 @@
+{
+  "customer_profile": {
+    "name": "Jonathan Maxwell",
+    "gender": "male",
+    "address": "45 Balvernie Grove, Canterbury VIC 3126",
+    "latest_5_transactions": [
+      {
+        "transaction_id": "T20241203-001",
+        "purchase_date": "2024-12-03",
+        "items": [
+          {
+            "id": "400829",
+            "name": "Crossray 4 Burner Outdoor Kitchen Bbq",
+            "brand": "Crossray",
+            "price": 5599.0
+          }
+        ],
+        "transaction_total": 5599.0
+      },
+      {
+        "transaction_id": "T20241229-002",
+        "purchase_date": "2024-12-29",
+        "items": [
+          {
+            "id": "510379",
+            "name": "Lifetime Monkey Bar Adventure Swing Set",
+            "brand": "Lifetime",
+            "price": 2499.0
+          }
+        ],
+        "transaction_total": 2499.0
+      },
+      {
+        "transaction_id": "T20250102-003",
+        "purchase_date": "2025-01-02",
+        "items": [
+          {
+            "id": "371722",
+            "name": "Lifespan Kids 3m Amazon Monkey Bars",
+            "brand": "Lifespan Kids",
+            "price": 649.0
+          }
+        ],
+        "transaction_total": 649.0
+      },
+      {
+        "transaction_id": "T20250105-004",
+        "purchase_date": "2025-01-05",
+        "items": [
+          {
+            "id": "385174",
+            "name": "Pinnacle Hardware Pro Series 8 Drawer End Cabinet",
+            "brand": "Pinnacle Hardware",
+            "price": 945.0
+          }
+        ],
+        "transaction_total": 945.0
+      },
+      {
+        "transaction_id": "T20250108-005",
+        "purchase_date": "2025-01-08",
+        "items": [
+          {
+            "id": "93254",
+            "name": "Tuff Turf 3.75 x 1m Luxury Synthetic",
+            "brand": "Tuff Turf",
+            "price": 168.37
+          }
+        ],
+        "transaction_total": 168.37
+      }
+    ],
+    "purchase_statistics": {
+      "total_number_of_purchases": 5,
+      "total_spent": 10310.37,
+      "average_transaction_price": 2062.07,
+      "highest_item_price_purchased": 5599.0,
+      "distribution_of_purchase_prices": {
+        "150-500": 0,
+        "501-1000": 2,
+        "1001-3000": 1,
+        "3001-5000": 0,
+        "5001+": 2
+      }
+    },
+    "inferred_purchasing_behavior": {
+      "purchasing_power": "High",
+      "preferred_product_types": [
+        "Outdoor entertaining and kitchen equipment",
+        "Premium children’s outdoor play equipment",
+        "Mid-to-high range garage storage solutions"
+      ],
+      "price_sensitivity": "Low to moderate. Customer is willing to invest in higher-priced items that promise quality and longevity.",
+      "brand_loyalty": "Likely to revisit known high-quality brands for future home improvement or outdoor lifestyle purchases.",
+      "shopping_frequency": "Moderate purchase frequency, tends to make larger transactions with premium items."
+    },
+    "additional_notes": {
+      "communication_preference": "Email and SMS notifications about new premium outdoor and storage solutions.",
+      "likely_future_interests": [
+        "High-end power tools or cordless equipment",
+        "Advanced outdoor entertainment setups",
+        "Luxury home improvement materials"
+      ],
+      "preferred_delivery_method": "Home delivery with scheduled time slots due to large-sized items",
+      "customer_since": "2024-07"
+    }
+  }
+}

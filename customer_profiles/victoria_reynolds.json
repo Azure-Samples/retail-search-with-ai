@@ -1,0 +1,152 @@
+{
+    "customer_profile": {
+      "name": "Victoria Reynolds",
+      "gender": "female",
+      "address": "45 Kensington Avenue, Sydney NSW 2000",
+      "latest_5_transactions": [
+        {
+          "transaction_id": "T20240615-001",
+          "purchase_date": "2024-06-15",
+          "items": [
+            {
+              "id": "LUX001",
+              "name": "Crystal Couture Handbag",
+              "brand": "Crystal Couture",
+              "price": 1200.0,
+              "quantity": 1,
+              "line_total": 1200.0
+            }
+          ],
+          "transaction_total": 1200.0
+        },
+        {
+          "transaction_id": "T20240720-002",
+          "purchase_date": "2024-07-20",
+          "items": [
+            {
+              "id": "OUT001",
+              "name": "TrailBlazer Elite Hiking Boots",
+              "brand": "TrailBlazer Elite",
+              "price": 250.0,
+              "quantity": 1,
+              "line_total": 250.0
+            },
+            {
+              "id": "OUT002",
+              "name": "OutdoorMaster Camping Tent",
+              "brand": "OutdoorMaster",
+              "price": 400.0,
+              "quantity": 1,
+              "line_total": 400.0
+            }
+          ],
+          "transaction_total": 650.0
+        },
+        {
+          "transaction_id": "T20240815-003",
+          "purchase_date": "2024-08-15",
+          "items": [
+            {
+              "id": "SPRT001",
+              "name": "AceSports Pro Tennis Racket",
+              "brand": "AceSports",
+              "price": 300.0,
+              "quantity": 1,
+              "line_total": 300.0
+            },
+            {
+              "id": "SPRT002",
+              "name": "AceSports Performance Tennis Balls (Pack of 3)",
+              "brand": "AceSports",
+              "price": 50.0,
+              "quantity": 1,
+              "line_total": 50.0
+            }
+          ],
+          "transaction_total": 350.0
+        },
+        {
+          "transaction_id": "T20241005-004",
+          "purchase_date": "2024-10-05",
+          "items": [
+            {
+              "id": "LUX002",
+              "name": "TimeActive Luxury Sports Watch",
+              "brand": "TimeActive",
+              "price": 800.0,
+              "quantity": 1,
+              "line_total": 800.0
+            },
+            {
+              "id": "OUT003",
+              "name": "UrbanAdventure Premium Outdoor Jacket",
+              "brand": "UrbanAdventure",
+              "price": 600.0,
+              "quantity": 1,
+              "line_total": 600.0
+            }
+          ],
+          "transaction_total": 1400.0
+        },
+        {
+          "transaction_id": "T20250110-005",
+          "purchase_date": "2025-01-10",
+          "items": [
+            {
+              "id": "LUX003",
+              "name": "EleganceEye Designer Sunglasses",
+              "brand": "EleganceEye",
+              "price": 350.0,
+              "quantity": 1,
+              "line_total": 350.0
+            },
+            {
+              "id": "SPRT003",
+              "name": "SprintMaster High-End Running Shoes",
+              "brand": "SprintMaster",
+              "price": 200.0,
+              "quantity": 1,
+              "line_total": 200.0
+            }
+          ],
+          "transaction_total": 550.0
+        }
+      ],
+      "purchase_statistics": {
+        "total_number_of_purchases": 5,
+        "total_spent": 4150.0,
+        "average_transaction_price": 830.0,
+        "highest_item_price_purchased": 1200.0,
+        "distribution_of_purchase_prices": {
+          "0-25": 0,
+          "26-50": 0,
+          "51-75": 0,
+          "76-100": 0,
+          "100+": 5
+        }
+      },
+      "inferred_purchasing_behavior": {
+        "purchasing_power": "Very High",
+        "price_sensitivity": "Low",
+        "preferred_product_types": [
+          "Luxury items",
+          "Outdoor gear",
+          "Sports equipment"
+        ],
+        "shopping_frequency": "Frequent (monthly)",
+        "brand_loyalty": "High",
+        "typical_cart_size": "Large, with multiple high-end items"
+      },
+      "additional_notes": {
+        "communication_preference": "Exclusive email offers and SMS alerts for premium releases",
+        "likely_future_interests": [
+          "Limited edition luxury collections",
+          "Advanced outdoor adventure gear",
+          "High-performance sports equipment"
+        ],
+        "preferred_delivery_method": "White-glove delivery service",
+        "customer_since": "2024-06"
+      }
+    }
+  }
+  
