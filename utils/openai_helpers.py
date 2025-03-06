@@ -19,13 +19,7 @@ from tenacity import (
 from rich.console import Console
 console = Console()
 
-from tenacity import (
-    retry,
-    stop_after_attempt,
-    wait_random_exponential,
-    stop_after_delay,
-    after_log
-)
+
 
 from utils.openai_data_models import *
 from utils.file_utils import convert_png_to_jpg, get_image_base64

@@ -6,7 +6,6 @@ import logging
 import base64
 from PIL import Image
 from datetime import datetime, timedelta
-from env_vars import *
 
 
 

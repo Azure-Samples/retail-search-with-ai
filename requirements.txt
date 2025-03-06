@@ -1,0 +1,14 @@
+rich
+python-dotenv
+pandas
+numpy
+requests
+tiktoken
+openai
+tenacity
+json_repair
+fastapi 
+uvicorn
+pillow
+pydantic
+azure-search-documents
