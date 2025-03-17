@@ -217,10 +217,17 @@ class SearchService:
             # Phase 2: AI Reasoning (if enabled)
             if request.reasoningEnabled:
                 self.progress.update_progress(
-                    search_id=search_id,
-                    stage=SearchProgress.REASONING,
-                    message="Generating AI reasoning",
-                    percentage=70
+                search_id=search_id,
+                stage=SearchProgress.REASONING,
+                message="Generating AI reasoning",
+                percentage=70
+                )
+            
+                ai_results = await self._process_reasoning_in_batches(
+                    ai_results, 
+                    request, 
+                    persona, 
+                    search_id
                 )
                 
                 # Process reasoning in parallel for better performance
@@ -344,3 +351,61 @@ class SearchService:
         )
         
         return standard_results, ai_results, summary
+    
+    async def _process_reasoning_in_batches(
+        self, 
+        ai_results: List[SearchResult], 
+        request: SearchRequest, 
+        persona: UserPersona, 
+        search_id: str
+    ) -> List[SearchResult]:
+        """
+        Process reasoning tasks in memory-efficient batches.
+        
+        Args:
+            ai_results: List of search results
+            request: Search request parameters
+            persona: User persona
+            search_id: Search ID for progress tracking
+            
+        Returns:
+            Updated list of search results with reasoning
+        """
+        batch_size = 5  # Adjust based on API limits and memory considerations
+        total_results = len(ai_results)
+        processed_count = 0
+        
+        for i in range(0, total_results, batch_size):
+            # Process a batch
+            batch = ai_results[i:min(i+batch_size, total_results)]
+            reasoning_tasks = []
+            
+            for result in batch:
+                task = self.openai.generate_reasoning(
+                    result.dict(), 
+                    request.query, 
+                    persona
+                )
+                reasoning_tasks.append(task)
+            
+            # Execute this batch of reasoning tasks
+            reasoning_results = await asyncio.gather(*reasoning_tasks)
+            
+            # Update results with reasoning
+            for j, reasoning in enumerate(reasoning_results):
+                batch_index = i+j
+                if batch_index < total_results:  # Safety check
+                    ai_results[batch_index].aiReasoning = reasoning
+                    ai_results[batch_index].match = reasoning.confidenceScore
+            
+            # Update progress
+            processed_count += len(batch)
+            progress_percentage = 70 + (processed_count / total_results) * 20
+            self.progress.update_progress(
+                search_id=search_id,
+                stage=SearchProgress.REASONING,
+                message=f"Generated reasoning for {processed_count}/{total_results} products",
+                percentage=int(progress_percentage)
+            )
+        
+        return ai_results

@@ -4,7 +4,9 @@ import logging
 from azure.core.credentials import AzureKeyCredential
 from azure.search.documents import SearchClient
 from azure.search.documents.models import VectorizableTextQuery, QueryType
-
+from functools import lru_cache
+import hashlib
+import json
 from app.config.settings import settings
 
 logger = logging.getLogger(__name__)
@@ -24,6 +26,32 @@ class AzureSearchService:
         except Exception as e:
             logger.error(f"Failed to initialize Azure Search client: {str(e)}")
             raise
+    
+    def _handle_api_error(self, e: Exception, operation: str) -> None:
+        """
+        Handle API errors with detailed logging and appropriate actions.
+        
+        Args:
+            e: The exception that was raised
+            operation: The name of the operation that failed
+        
+        Raises:
+            SearchError: Raised with details about the error
+        """
+        error_message = f"{operation} failed: {str(e)}"
+        
+        if hasattr(e, 'status_code'):
+            if e.status_code == 429:
+                error_message = f"{operation} rate limited: {str(e)}"
+                # Could implement exponential backoff retry logic here
+                logger.warning(f"Rate limit hit for {operation}, consider implementing retry logic")
+            elif e.status_code >= 500:
+                error_message = f"{operation} service error: {str(e)}"
+            elif e.status_code >= 400:
+                error_message = f"{operation} client error: {str(e)}"
+        
+        logger.error(error_message)
+        raise SearchError(error_message)
     
     async def standard_search(self, query: str, top: int = 50) -> List[Dict[str, Any]]:
         """
@@ -46,8 +74,7 @@ class AzureSearchService:
             logger.info(f"Standard search for '{query}' returned {len(formatted_results)} results")
             return formatted_results
         except Exception as e:
-            logger.error(f"Standard search failed: {str(e)}")
-            raise
+            self._handle_api_error(e, f"Standard search for '{query}'")
     
     async def vector_search(self, query: str, vector_fields: List[str], top: int = 50) -> List[Dict[str, Any]]:
         """
@@ -82,8 +109,7 @@ class AzureSearchService:
             logger.info(f"Vector search for '{query}' returned {len(formatted_results)} results")
             return formatted_results
         except Exception as e:
-            logger.error(f"Vector search failed: {str(e)}")
-            raise
+            self._handle_api_error(e, f"Vector search for '{query}'")
     
     async def hybrid_search(self, query: str, vector_fields: List[str], top: int = 50) -> List[Dict[str, Any]]:
         """
@@ -106,8 +132,7 @@ class AzureSearchService:
             logger.info(f"Hybrid search for '{query}' returned {len(combined_results)} results")
             return combined_results
         except Exception as e:
-            logger.error(f"Hybrid search failed: {str(e)}")
-            raise
+            self._handle_api_error(e, f"Hybrid search for '{query}'")
     
     def _reciprocal_rank_fusion(self, result_sets: List[List[Dict[str, Any]]], k: int = 60) -> List[Dict[str, Any]]:
         """
@@ -188,3 +213,106 @@ class AzureSearchService:
             formatted_results.append(result)
             
         return formatted_results
+
+
+class CachedSearchService:
+    """Wrapper for search service with caching capabilities."""
+    
+    def __init__(self, search_service):
+        """
+        Initialize with a reference to the underlying search service.
+        
+        Args:
+            search_service: The search service to wrap with caching
+        """
+        self.search_service = search_service
+        self.cache_hits = 0
+        self.cache_misses = 0
+    
+    def _generate_cache_key(self, query: str, **kwargs) -> str:
+        """
+        Generate a deterministic cache key from query and parameters.
+        
+        Args:
+            query: The search query
+            **kwargs: Additional parameters affecting the search
+            
+        Returns:
+            A hash string to use as cache key
+        """
+        # Create a dictionary of all parameters
+        key_dict = {"query": query}
+        key_dict.update(kwargs)
+        
+        # Convert to a stable string representation
+        key_str = json.dumps(key_dict, sort_keys=True)
+        
+        # Generate hash
+        return hashlib.md5(key_str.encode()).hexdigest()
+    
+    @lru_cache(maxsize=100)
+    async def cached_standard_search(self, query: str, top: int = 50) -> List[Dict[str, Any]]:
+        """
+        Cached version of standard search.
+        
+        Args:
+            query: The search query string
+            top: Maximum number of results to return
+                
+        Returns:
+            List of search results
+        """
+        # This is just for metrics - the actual caching is handled by lru_cache
+        cache_key = self._generate_cache_key(query, top=top)
+        logger.debug(f"Cache key for standard search: {cache_key}")
+        
+        self.cache_misses += 1
+        results = await self.search_service.standard_search(query, top)
+        return results
+    
+    # Add cached versions of other search methods as needed
+    @lru_cache(maxsize=100)
+    async def cached_vector_search(self, query: str, vector_fields_str: str, top: int = 50) -> List[Dict[str, Any]]:
+        """
+        Cached version of vector search.
+        
+        Args:
+            query: The search query string
+            vector_fields_str: Comma-separated string of vector fields
+            top: Maximum number of results to return
+                
+        Returns:
+            List of search results
+        """
+        # Convert string to list for the actual method call
+        vector_fields = vector_fields_str.split(',')
+        
+        cache_key = self._generate_cache_key(query, vector_fields=vector_fields_str, top=top)
+        logger.debug(f"Cache key for vector search: {cache_key}")
+        
+        self.cache_misses += 1
+        results = await self.search_service.vector_search(query, vector_fields, top)
+        return results
+    
+    @lru_cache(maxsize=100)
+    async def cached_hybrid_search(self, query: str, vector_fields_str: str, top: int = 50) -> List[Dict[str, Any]]:
+        """
+        Cached version of hybrid search.
+        
+        Args:
+            query: The search query string
+            vector_fields_str: Comma-separated string of vector fields
+            top: Maximum number of results to return
+                
+        Returns:
+            List of search results
+        """
+        # Convert string to list for the actual method call
+        vector_fields = vector_fields_str.split(',')
+        
+        cache_key = self._generate_cache_key(query, vector_fields=vector_fields_str, top=top)
+        logger.debug(f"Cache key for hybrid search: {cache_key}")
+        
+        self.cache_misses += 1
+        results = await self.search_service.hybrid_search(query, vector_fields, top)
+        return results
