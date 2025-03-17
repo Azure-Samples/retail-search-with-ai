@@ -9,10 +9,10 @@ interface ProductGridProps {
   selectedStore: string;
   animationEnabled: boolean;
   isAIMode: boolean;
-  isDarkMode?: boolean;  // Add this prop
-  cardBg?: string;       // Add this prop
-  textMain?: string;     // Add this prop
-  showRankChanges?: boolean; // Add new prop for persistent rank changes
+  isDarkMode?: boolean;
+  cardBg?: string;
+  textMain?: string;
+  showRankChanges?: boolean;
 }
 
 interface PositionMap {
@@ -35,7 +35,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   selectedStore, 
   animationEnabled, 
   isAIMode,
-  isDarkMode = false,  // Default to false
+  isDarkMode = false,
   cardBg,
   textMain,
   showRankChanges
@@ -114,11 +114,13 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
   // Guard against undefined results
   if (!results || results.length === 0) {
-    return <div className="p-4 text-center">No results to display</div>;
+    return <div className={`p-4 text-center ${textMain}`}>No results to display</div>;
   }
 
+  const bgClass = isDarkMode ? 'bg-gray-900' : 'bg-white';
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 ${bgClass}`}>
       {results.map((result, index) => {
         const { vectorRank, textRank } = getVectorAndTextRanks(result);
         const animState = animationStates[result.id];
@@ -129,7 +131,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
             ref={el => {
               if (el) productRefs.current[result.id] = el;
             }}
-            className="relative"
+            className={`relative ${bgClass}`}
           >
             {animationEnabled && animState?.moved && (
               <div className={`absolute -top-6 right-2 flex items-center ${
@@ -151,7 +153,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
               isDarkMode={isDarkMode}
               cardBg={cardBg}
               textMain={textMain}
-              showRankChange={showRankChanges || (animState?.moved && animationEnabled)} // Show rank either when animation is active or when showRankChanges is true
+              showRankChange={showRankChanges || (animState?.moved && animationEnabled)} 
             />
           </div>
         );

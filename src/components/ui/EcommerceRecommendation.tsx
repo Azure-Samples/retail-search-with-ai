@@ -61,7 +61,7 @@ const EcommerceRecommendation: React.FC = () => {
         userPersonas={userPersonas}
       />
       
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className={`${bgMain} max-w-7xl mx-auto px-4 py-8`}>
         {/* Debug info panel */}
         <DebugPanel 
           debug={debug} 
@@ -71,26 +71,30 @@ const EcommerceRecommendation: React.FC = () => {
         />
         
         {/* Search Mode Toggle */}
-        <SearchModeToggle 
-          isAIMode={isAIMode}
-          handleModeToggle={handleModeToggle}
-          isDarkMode={isDarkMode}
-          textMain={textMain}
-          summary={summary}
-        />
+        <div className={bgMain}>
+          <SearchModeToggle 
+            isAIMode={isAIMode}
+            handleModeToggle={handleModeToggle}
+            isDarkMode={isDarkMode}
+            textMain={textMain}
+            summary={summary}
+          />
+        </div>
         
         {/* Product Results Grid */}
-        <ProductGrid 
-          results={displayResults} 
-          previousResults={previousResults}
-          selectedStore={reasoningEnabled ? "All Stores" : "All Stores"}
-          animationEnabled={animationEnabled}
-          isAIMode={isAIMode}
-          isDarkMode={isDarkMode}
-          cardBg={themeStyles.cardBg}
-          textMain={textMain}
-          showRankChanges={isAIMode}
-        />
+        <div className={bgMain}>
+          <ProductGrid 
+            results={displayResults} 
+            previousResults={previousResults}
+            selectedStore={reasoningEnabled ? "All Stores" : "All Stores"}
+            animationEnabled={animationEnabled}
+            isAIMode={isAIMode}
+            isDarkMode={isDarkMode}
+            cardBg={themeStyles.cardBg}
+            textMain={textMain}
+            showRankChanges={isAIMode}
+          />
+        </div>
       </main>
     </div>
   );
