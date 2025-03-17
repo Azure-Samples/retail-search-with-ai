@@ -18,6 +18,7 @@ from services.progress_service import ProgressService
 from services.search_service import SearchService
 from utils.error_handling import setup_exception_handlers
 from data.personas import load_personas
+from services.mock_services import MockAzureSearchService, MockOpenAIReasoningService
 
 # Set up logging
 logging.basicConfig(
@@ -39,6 +40,11 @@ personas = load_personas()
 azure_search_service = AzureSearchService()
 cached_azure_search = CachedSearchService(azure_search_service)
 openai_service = OpenAIReasoningService()
+
+# # Use mock services instead
+# azure_search_service = MockAzureSearchService()
+# openai_service = MockOpenAIReasoningService()
+
 progress_service = ProgressService()
 search_service = SearchService(
     azure_search_service=azure_search_service,

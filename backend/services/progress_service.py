@@ -1,9 +1,9 @@
-# app/services/progress_service.py
+# services/progress_service.py
 from typing import Dict, Optional
 import uuid
 from datetime import datetime, timedelta
 import asyncio
-from app.models.search import ProgressUpdate, SearchProgress
+from models.search import ProgressUpdate, SearchProgress
 
 class ProgressService:
     """Service to track and expose search progress information."""

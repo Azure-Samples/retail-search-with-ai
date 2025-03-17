@@ -1,4 +1,4 @@
-# app/services/azure_search.py
+# services/azure_search.py
 from typing import List, Dict, Any
 import logging
 from azure.core.credentials import AzureKeyCredential
@@ -95,7 +95,7 @@ class AzureSearchService:
                 VectorizableTextQuery(
                     text=query,
                     k_nearest_neighbors=50,
-                    fields=[field],
+                    fields=field,  # Changed from [field] to just field
                     exhaustive=True
                 ) for field in vector_fields
             ]
@@ -104,6 +104,7 @@ class AzureSearchService:
                 search_text=query,
                 vector_queries=vector_queries,
                 query_type=QueryType.SEMANTIC,
+                semantic_configuration_name="semantic-config",
                 top=top
             )
             formatted_results = self._format_results(results)

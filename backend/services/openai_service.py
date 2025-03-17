@@ -1,14 +1,26 @@
-# app/services/openai_service.py
+# services/openai_service.py
 from typing import Dict, List, Any
 import json
 import logging
 import asyncio
-from openai import AsyncAzureOpenAI
+from openai import AsyncAzureOpenAI, APIError, RateLimitError
 from config.settings import settings
 from models.user import UserPersona
 from models.search import AIReasoning, AIReasoningFactor
+import tenacity
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type, RetryCallState
 
 logger = logging.getLogger(__name__)
+
+def log_retry_attempt(retry_state: RetryCallState) -> None:
+    """Log information about retry attempts."""
+    exception = retry_state.outcome.exception()
+    if exception:
+        logger.warning(
+            f"Retrying {retry_state.fn.__name__} due to {exception.__class__.__name__}: {exception}. "
+            f"Attempt {retry_state.attempt_number}/{retry_state.retry_object.stop.max_attempt_number}. "
+            f"Will retry in {retry_state.next_action.sleep} seconds."
+        )
 
 class OpenAIReasoningService:
     """Service for OpenAI reasoning operations."""
@@ -26,6 +38,40 @@ class OpenAIReasoningService:
         except Exception as e:
             logger.error(f"Failed to initialize OpenAI client: {str(e)}")
             raise
+
+    @retry(
+        retry=retry_if_exception_type((RateLimitError, APIError)),
+        stop=stop_after_attempt(5),
+        wait=wait_exponential(multiplier=1, min=2, max=60),
+        after=log_retry_attempt,
+        reraise=True
+    )
+    async def _call_openai_api(self, messages, temperature=0.7, max_tokens=None, response_format=None):
+        """
+        Make a request to the OpenAI API with retry logic.
+        
+        Args:
+            messages: The messages to send to the API
+            temperature: The temperature to use
+            max_tokens: The maximum number of tokens to generate
+            response_format: The format to return the response in
+            
+        Returns:
+            The API response
+        """
+        kwargs = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": temperature,
+        }
+        
+        if max_tokens is not None:
+            kwargs["max_tokens"] = max_tokens
+            
+        if response_format is not None:
+            kwargs["response_format"] = response_format
+            
+        return await self.client.chat.completions.create(**kwargs)
     
     async def rewrite_query(self, query: str, persona: UserPersona) -> str:
         """
@@ -54,8 +100,7 @@ class OpenAIReasoningService:
             Return only the rewritten query without explanation.
             """
             
-            response = await self.client.chat.completions.create(
-                model=self.model,
+            response = await self._call_openai_api(
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.3,
                 max_tokens=100
@@ -65,8 +110,8 @@ class OpenAIReasoningService:
             logger.info(f"Rewrote query '{query}' to '{rewritten_query}'")
             return rewritten_query
         except Exception as e:
-            logger.error(f"Query rewriting failed: {str(e)}")
-            # If rewriting fails, return the original query
+            logger.error(f"Query rewriting failed after retries: {str(e)}")
+            # If rewriting fails after retries, return the original query
             return query
     
     async def rerank_results(
@@ -115,8 +160,7 @@ class OpenAIReasoningService:
             Format: {{"product_ids": ["id1", "id2", "id3", ...]}}
             """
             
-            response = await self.client.chat.completions.create(
-                model=self.model,
+            response = await self._call_openai_api(
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.3,
                 response_format={"type": "json_object"}
@@ -149,8 +193,8 @@ class OpenAIReasoningService:
                 return results
                 
         except Exception as e:
-            logger.error(f"Reranking failed: {str(e)}")
-            # If reranking fails, return the original results
+            logger.error(f"Reranking failed after retries: {str(e)}")
+            # If reranking fails after retries, return the original results
             return results
     
     async def generate_reasoning(
@@ -206,8 +250,7 @@ class OpenAIReasoningService:
             }}
             """
             
-            response = await self.client.chat.completions.create(
-                model=self.model,
+            response = await self._call_openai_api(
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.7,
                 response_format={"type": "json_object"}
@@ -241,8 +284,8 @@ class OpenAIReasoningService:
                 return self._default_reasoning(product, query)
                 
         except Exception as e:
-            logger.error(f"Reasoning generation failed: {str(e)}")
-            # Return default reasoning if generation fails
+            logger.error(f"Reasoning generation failed after retries: {str(e)}")
+            # Return default reasoning if generation fails after retries
             return self._default_reasoning(product, query)
     
     def _default_reasoning(self, product: Dict[str, Any], query: str) -> AIReasoning:

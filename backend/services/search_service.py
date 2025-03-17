@@ -29,6 +29,8 @@ class SearchService:
         self.personas = personas
         # Store completed search results
         self.completed_searches: Dict[str, SearchResponse] = {}
+        # Store in-progress search results
+        self.in_progress_searches: Dict[str, Dict[str, Any]] = {}
     
     def get_persona(self, persona_id: str) -> UserPersona:
         """
@@ -68,6 +70,15 @@ class SearchService:
             percentage=0
         )
         
+        # Initialize in-progress search data
+        self.in_progress_searches[search_id] = {
+            "request": request,
+            "standard_results": [],
+            "ai_results": [],
+            "summary": None,
+            "completed": False
+        }
+        
         # Start search process in the background
         asyncio.create_task(self._process_search(search_id, request))
         
@@ -83,28 +94,34 @@ class SearchService:
         Returns:
             Current search results with progress information
         """
-        # Check if we have completed results
+        # Check if search is completed
         if search_id in self.completed_searches:
             return self.completed_searches[search_id]
             
-        # Otherwise check progress
-        progress = self.progress.get_progress(search_id)
-        
-        if not progress:
+        # Check if search is in progress with partial results
+        if search_id in self.in_progress_searches:
+            progress = self.progress.get_progress(search_id)
+            if not progress:
+                progress_stage = SearchProgress.ERROR
+            else:
+                progress_stage = progress.stage
+                
+            # Return current state of results
+            in_progress_data = self.in_progress_searches[search_id]
             return SearchResponse(
                 search_id=search_id,
-                progress=SearchProgress.ERROR,
-                standardResults=[],
-                aiResults=[],
-                summary=None
+                progress=progress_stage,
+                standardResults=in_progress_data.get("standard_results", []),
+                aiResults=in_progress_data.get("ai_results", []),
+                summary=in_progress_data.get("summary")
             )
         
-        # Return in-progress response
+        # Progress not found
         return SearchResponse(
             search_id=search_id,
-            progress=progress.stage,
-            standardResults=[], 
-            aiResults=[], 
+            progress=SearchProgress.ERROR,
+            standardResults=[],
+            aiResults=[],
             summary=None
         )
     
@@ -131,6 +148,9 @@ class SearchService:
             standard_results = await self.azure_search.standard_search(request.query)
             standard_search_results = [SearchResult(**result) for result in standard_results]
             
+            # Store standard results in in-progress data
+            self.in_progress_searches[search_id]["standard_results"] = standard_search_results
+            
             # If enhanced search or reasoning is not enabled, return standard results
             if not (request.vectorSearchEnabled or request.rerankerEnabled or request.reasoningEnabled):
                 # Set ranks for standard results
@@ -148,6 +168,10 @@ class SearchService:
                     averageRankImprovement=0.0
                 )
                 
+                # Update in-progress data
+                self.in_progress_searches[search_id]["ai_results"] = standard_search_results
+                self.in_progress_searches[search_id]["summary"] = summary
+                
                 # Create final response
                 final_response = SearchResponse(
                     search_id=search_id,
@@ -159,6 +183,7 @@ class SearchService:
                 
                 # Store completed results
                 self.completed_searches[search_id] = final_response
+                self.in_progress_searches[search_id]["completed"] = True
                 
                 # Update progress
                 self.progress.update_progress(
@@ -214,6 +239,17 @@ class SearchService:
                 )
                 ai_results = [SearchResult(**result) for result in reranked_results]
             
+            # Calculate initial rank changes without reasoning
+            standard_results, ai_results, summary = self._calculate_rank_changes(
+                standard_search_results, 
+                ai_results
+            )
+            
+            # Update in-progress data with current results
+            self.in_progress_searches[search_id]["standard_results"] = standard_results
+            self.in_progress_searches[search_id]["ai_results"] = ai_results
+            self.in_progress_searches[search_id]["summary"] = summary
+            
             # Phase 2: AI Reasoning (if enabled)
             if request.reasoningEnabled:
                 self.progress.update_progress(
@@ -223,30 +259,39 @@ class SearchService:
                     percentage=70
                 )
                 
-                ai_results = await self._process_reasoning_in_batches(
+                processed_results = await self._process_reasoning_in_batches(
                     ai_results, 
                     request, 
                     persona, 
                     search_id
                 )
+                
+                # Update AI results with reasoning
+                self.in_progress_searches[search_id]["ai_results"] = processed_results
             
-            # Calculate ranks and rank changes
-            standard_results, ai_results, summary = self._calculate_rank_changes(
+            # Final rank calculations with all processing complete
+            final_standard_results, final_ai_results, final_summary = self._calculate_rank_changes(
                 standard_search_results, 
-                ai_results
+                self.in_progress_searches[search_id]["ai_results"]
             )
+            
+            # Update in-progress data
+            self.in_progress_searches[search_id]["standard_results"] = final_standard_results
+            self.in_progress_searches[search_id]["ai_results"] = final_ai_results
+            self.in_progress_searches[search_id]["summary"] = final_summary
             
             # Create final response
             final_response = SearchResponse(
                 search_id=search_id,
                 progress=SearchProgress.COMPLETE,
-                standardResults=standard_results,
-                aiResults=ai_results,
-                summary=summary
+                standardResults=final_standard_results,
+                aiResults=final_ai_results,
+                summary=final_summary
             )
             
             # Store completed results
             self.completed_searches[search_id] = final_response
+            self.in_progress_searches[search_id]["completed"] = True
             
             # Update progress as completed
             self.progress.update_progress(
@@ -264,6 +309,9 @@ class SearchService:
                 message=f"Search failed: {str(e)}",
                 percentage=0
             )
+            # Even on error, we keep any partial results
+            if search_id in self.in_progress_searches:
+                self.in_progress_searches[search_id]["completed"] = True
     
     def _calculate_rank_changes(
         self, 
@@ -330,7 +378,7 @@ class SearchService:
         search_id: str
     ) -> List[SearchResult]:
         """
-        Process reasoning tasks in memory-efficient batches.
+        Process reasoning tasks in parallel batches for better performance.
         
         Args:
             ai_results: List of search results
@@ -341,34 +389,42 @@ class SearchService:
         Returns:
             Updated list of search results with reasoning
         """
-        batch_size = 5  # Adjust based on API limits and memory considerations
+        batch_size = 5  # Process 5 items at a time
         total_results = len(ai_results)
         processed_count = 0
+        result_map = {result.id: result for result in ai_results}
         
+        # Process in small batches for parallel processing
         for i in range(0, total_results, batch_size):
-            # Process a batch
-            batch = ai_results[i:min(i+batch_size, total_results)]
+            batch_end = min(i + batch_size, total_results)
+            batch = ai_results[i:batch_end]
             reasoning_tasks = []
             
+            # Create concurrent tasks for this batch
             for result in batch:
                 task = self.openai.generate_reasoning(
                     result.dict(), 
                     request.query, 
                     persona
                 )
-                reasoning_tasks.append(task)
+                reasoning_tasks.append((result.id, task))
             
-            # Execute this batch of reasoning tasks
-            reasoning_results = await asyncio.gather(*reasoning_tasks)
+            # Execute all tasks in this batch concurrently
+            results = await asyncio.gather(*[task for _, task in reasoning_tasks], return_exceptions=True)
             
             # Update results with reasoning
-            for j, reasoning in enumerate(reasoning_results):
-                batch_index = i+j
-                if batch_index < total_results:  # Safety check
-                    ai_results[batch_index].aiReasoning = reasoning
-                    ai_results[batch_index].match = reasoning.confidenceScore
+            for (result_id, _), reasoning in zip(reasoning_tasks, results):
+                if isinstance(reasoning, Exception):
+                    logger.error(f"Error generating reasoning for product {result_id}: {str(reasoning)}")
+                    # Use default reasoning on error
+                    reasoning = self.openai._default_reasoning(result_map[result_id].dict(), request.query)
+                
+                # Update product with reasoning
+                if result_id in result_map:
+                    result_map[result_id].aiReasoning = reasoning
+                    result_map[result_id].match = reasoning.confidenceScore
             
-            # Update progress
+            # Update processed count and progress
             processed_count += len(batch)
             progress_percentage = 70 + (processed_count / total_results) * 20
             self.progress.update_progress(
@@ -377,5 +433,10 @@ class SearchService:
                 message=f"Generated reasoning for {processed_count}/{total_results} products",
                 percentage=int(progress_percentage)
             )
+            
+            # Update in-progress results to make them available for clients
+            if search_id in self.in_progress_searches:
+                self.in_progress_searches[search_id]["ai_results"] = list(result_map.values())
         
-        return ai_results
+        # Return the updated results
+        return list(result_map.values())
