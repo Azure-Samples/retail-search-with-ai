@@ -12,6 +12,7 @@ interface ProductGridProps {
   isDarkMode?: boolean;  // Add this prop
   cardBg?: string;       // Add this prop
   textMain?: string;     // Add this prop
+  showRankChanges?: boolean; // Add new prop for persistent rank changes
 }
 
 interface PositionMap {
@@ -36,7 +37,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   isAIMode,
   isDarkMode = false,  // Default to false
   cardBg,
-  textMain
+  textMain,
+  showRankChanges
 }) => {
   // Store refs to product elements
   const productRefs = useRef<{ [key: string]: HTMLDivElement }>({});
@@ -149,6 +151,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
               isDarkMode={isDarkMode}
               cardBg={cardBg}
               textMain={textMain}
+              showRankChange={showRankChanges || (animState?.moved && animationEnabled)} // Show rank either when animation is active or when showRankChanges is true
             />
           </div>
         );

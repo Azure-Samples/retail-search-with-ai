@@ -15,6 +15,7 @@ interface ProductCardProps {
   cardBg?: string;
   textMain?: string;
   animationClass?: string;
+  showRankChange?: boolean; // Add new prop
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ 
@@ -27,7 +28,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   isDarkMode = false,
   cardBg = isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-300",
   textMain = isDarkMode ? "text-white" : "text-gray-900",
-  animationClass = ""
+  animationClass = "",
+  showRankChange
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
@@ -55,6 +57,27 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }).format(price || 0);
   };
 
+  // Function to get rank change display
+  const getRankChangeDisplay = () => {
+    const change = result.rankChange || rankChange || 0;
+    if (change > 0) {
+      return {
+        icon: '↑', 
+        color: isDarkMode ? 'text-green-400' : 'text-green-700',
+        text: `+${change}`
+      };
+    } else if (change < 0) {
+      return {
+        icon: '↓',
+        color: isDarkMode ? 'text-red-400' : 'text-red-700',
+        text: `${change}`
+      };
+    }
+    return { icon: '−', color: 'text-gray-400', text: '0' };
+  };
+
+  const { icon, color, text } = getRankChangeDisplay();
+
   return (
     <div className={`card-container ${animationClass}`} style={{minHeight: '480px', maxHeight: '480px'}}>
       <div className={`card-flipper ${isFlipped ? 'flipped' : ''}`}>
@@ -65,21 +88,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
         >
           <div className="relative">
             {/* Rank change indicator */}
-            {rankChange !== 0 && isAIMode && (
-              <div className={`absolute top-0 right-0 z-10 flex items-center rounded px-2 py-1 text-xs font-semibold ${
-                rankChange > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-              }`}>
-                {rankChange > 0 ? (
-                  <>
-                    <ArrowUpIcon className="w-3 h-3 mr-1" />
-                    +{rankChange}
-                  </>
-                ) : (
-                  <>
-                    <ArrowDownIcon className="w-3 h-3 mr-1" />
-                    {rankChange}
-                  </>
-                )}
+            {showRankChange && (result.rankChange || rankChange) !== 0 && (
+              <div className={`absolute -top-2 -right-2 flex items-center justify-center w-12 h-12 ${
+                text.startsWith('+') ? 'bg-green-100 border-green-500' : 'bg-red-100 border-red-500'
+              } border-2 rounded-full z-10`}>
+                <span className={`font-bold ${text.startsWith('+') ? 'text-green-700' : 'text-red-700'}`}>
+                  {icon} {Math.abs(parseInt(text))}
+                </span>
               </div>
             )}
             

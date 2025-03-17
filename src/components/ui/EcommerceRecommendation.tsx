@@ -227,11 +227,12 @@ const EcommerceRecommendation: React.FC = () => {
     setAnimationEnabled(true);
   };
 
-  // Reset animation flag after initial animation
+  // Modified: Keep animation effects for visual transitions but always show rank changes
   useEffect(() => {
     if (animationEnabled) {
       const timer = setTimeout(() => {
         setAnimationEnabled(false);
+        // We no longer hide the rank indicators, just disable the movement animation
       }, 1000);
       return () => clearTimeout(timer);
     }
@@ -378,6 +379,7 @@ const EcommerceRecommendation: React.FC = () => {
           isDarkMode={isDarkMode}
           cardBg={cardBg}
           textMain={textMain}
+          showRankChanges={isAIMode} // New prop to always show rank changes in AI mode
         />
       </main>
     </div>
