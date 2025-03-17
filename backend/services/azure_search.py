@@ -7,7 +7,8 @@ from azure.search.documents.models import VectorizableTextQuery, QueryType
 from functools import lru_cache
 import hashlib
 import json
-from app.config.settings import settings
+from config.settings import settings
+from utils.error_handling import SearchError
 
 logger = logging.getLogger(__name__)
 

@@ -1,5 +1,5 @@
 # app/main.py
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 import asyncio
@@ -51,7 +51,7 @@ search_service = SearchService(
 setup_exception_handlers(app)
 
 # Add CORS middleware
-add_middleware(
+app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # In production, restrict to frontend domain
     allow_credentials=True,
@@ -59,7 +59,7 @@ add_middleware(
     allow_headers=["*"],
 )
 
-@post("/api/search", response_model=str)
+@app.post("/api/search", response_model=str)
 async def initiate_search(request: SearchRequest):
     """
     Initiate an asynchronous search and return a search ID for tracking progress.
@@ -72,7 +72,7 @@ async def initiate_search(request: SearchRequest):
         logger.error(f"Error initiating search: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@get("/api/search/{search_id}", response_model=SearchResponse)
+@app.get("/api/search/{search_id}", response_model=SearchResponse)
 async def get_search_results(search_id: str):
     """
     Get the current results and progress for a search.
@@ -84,7 +84,7 @@ async def get_search_results(search_id: str):
         logger.error(f"Error getting search results: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@get("/api/search/{search_id}/progress", response_model=ProgressUpdate)
+@app.get("/api/search/{search_id}/progress", response_model=ProgressUpdate)
 async def get_search_progress(search_id: str):
     """
     Get the current progress of a search.
@@ -95,7 +95,7 @@ async def get_search_progress(search_id: str):
         raise HTTPException(status_code=404, detail="Search not found")
     return progress
 
-@get("/api/personas", response_model=List[UserPersona])
+@app.get("/api/personas", response_model=List[UserPersona])
 async def get_personas():
     """
     Get all available user personas.
@@ -103,7 +103,7 @@ async def get_personas():
     logger.info("Getting available user personas")
     return list(personas.values())
 
-@get("/health")
+@app.get("/health")
 async def health_check():
     """
     Comprehensive health check endpoint that checks all dependencies.
@@ -159,7 +159,7 @@ async def health_check():
     
     return health_status
 
-@on_event("shutdown")
+@app.on_event("shutdown")
 async def shutdown_event():
     """Handle graceful shutdown of the application."""
     logger.info("Shutting down application")

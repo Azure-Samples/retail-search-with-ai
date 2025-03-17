@@ -1,6 +1,7 @@
 # app/data/personas.py
 from typing import Dict
-from app.models.user import UserPersona, UserPersonaPreferences
+from models.user import UserPersona, UserPersonaPreferences
+
 
 def load_personas() -> Dict[str, UserPersona]:
     """

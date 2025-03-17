@@ -4,9 +4,9 @@ import json
 import logging
 import asyncio
 from openai import AsyncAzureOpenAI
-from app.config.settings import settings
-from app.models.user import UserPersona
-from app.models.search import AIReasoning, AIReasoningFactor
+from config.settings import settings
+from models.user import UserPersona
+from models.search import AIReasoning, AIReasoningFactor
 
 logger = logging.getLogger(__name__)
 

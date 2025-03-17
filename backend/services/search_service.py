@@ -1,14 +1,14 @@
-# app/services/search_service.py
+# services/search_service.py
 from typing import Dict, List, Any, Tuple
 import logging
 import asyncio
-from app.models.search import (
+from models.search import (
     SearchRequest, SearchResponse, SearchResult, SearchSummary, SearchProgress
 )
-from app.models.user import UserPersona
-from app.services.azure_search import AzureSearchService
-from app.services.openai_service import OpenAIReasoningService
-from app.services.progress_service import ProgressService
+from models.user import UserPersona
+from services.azure_search import AzureSearchService
+from services.openai_service import OpenAIReasoningService
+from services.progress_service import ProgressService
 
 logger = logging.getLogger(__name__)
 
@@ -217,48 +217,18 @@ class SearchService:
             # Phase 2: AI Reasoning (if enabled)
             if request.reasoningEnabled:
                 self.progress.update_progress(
-                search_id=search_id,
-                stage=SearchProgress.REASONING,
-                message="Generating AI reasoning",
-                percentage=70
+                    search_id=search_id,
+                    stage=SearchProgress.REASONING,
+                    message="Generating AI reasoning",
+                    percentage=70
                 )
-            
+                
                 ai_results = await self._process_reasoning_in_batches(
                     ai_results, 
                     request, 
                     persona, 
                     search_id
                 )
-                
-                # Process reasoning in parallel for better performance
-                reasoning_tasks = []
-                for result in ai_results:
-                    task = self.openai.generate_reasoning(
-                        result.dict(), 
-                        request.query, 
-                        persona
-                    )
-                    reasoning_tasks.append(task)
-                
-                # Execute reasoning tasks in batches to avoid overloading the API
-                batch_size = 5
-                for i in range(0, len(reasoning_tasks), batch_size):
-                    batch = reasoning_tasks[i:i+batch_size]
-                    reasoning_results = await asyncio.gather(*batch)
-                    
-                    # Update results with reasoning
-                    for j, reasoning in enumerate(reasoning_results):
-                        ai_results[i+j].aiReasoning = reasoning
-                        ai_results[i+j].match = reasoning.confidenceScore
-                
-                    # Update progress
-                    progress_percentage = 70 + (i / len(reasoning_tasks)) * 20
-                    self.progress.update_progress(
-                        search_id=search_id,
-                        stage=SearchProgress.REASONING,
-                        message=f"Generated reasoning for {i+len(batch)}/{len(reasoning_tasks)} products",
-                        percentage=int(progress_percentage)
-                    )
             
             # Calculate ranks and rank changes
             standard_results, ai_results, summary = self._calculate_rank_changes(
