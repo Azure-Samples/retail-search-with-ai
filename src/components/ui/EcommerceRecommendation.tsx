@@ -1,107 +1,41 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Header from './Header';
 import ProductGrid from './ProductGrid';
-import { UserPersona, Product, AnimationStates } from '../types';
+import DebugPanel from './DebugPanel';
+import SearchModeToggle from './SearchModeToggle';
+import { UserPersona } from '../types';
 import { userPersonas } from '../../data/userPersonas';
-import { baseProducts } from '../../data/baseProducts';
+import { useTheme } from '../../hooks/useTheme';
+import { useProductData } from '../../hooks/useProductData';
+import { useSearchMode } from '../../hooks/useSearchMode';
 
 const EcommerceRecommendation: React.FC = () => {
+  // Selected persona state
   const [selectedPersona, setSelectedPersona] = useState<UserPersona>(userPersonas[0]);
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [products, setProducts] = useState<Product[]>([]);
-  const [animationStates, setAnimationStates] = useState<AnimationStates>({});
-  const [vectorSearchEnabled, setVectorSearchEnabled] = useState<boolean>(false);
-  const [rerankerEnabled, setRerankerEnabled] = useState<boolean>(false);
-  const [reasoningEnabled, setReasoningEnabled] = useState<boolean>(false);
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
-  const [debug, setDebug] = useState<string>('Initializing...');
-
-  // Theme variables
-  const bgMain = isDarkMode ? "bg-gray-900" : "bg-white";
-  const textMain = isDarkMode ? "text-white" : "text-black";
-  const headerBg = isDarkMode ? "bg-gray-800 border-b border-gray-700" : "bg-gray-100 border-b border-gray-300";
-  const cardBg = isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-300";
-  const searchBg = isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-300";
-  const placeholderColor = isDarkMode ? "placeholder-gray-500" : "placeholder-gray-400";
-  const searchBtnStyle = isDarkMode 
-    ? "bg-blue-600 hover:bg-blue-700 text-white" 
-    : "bg-blue-200 hover:bg-blue-300 text-blue-900";
-
-  useEffect(() => {
-    try {
-      setDebug('Loading products...');
-      console.log('Base products:', baseProducts);
-      
-      if (!baseProducts || baseProducts.length === 0) {
-        setDebug('Error: No base products found');
-        return;
-      }
-      
-      const generatePersonalizedProducts = () => {
-        const personalizedProducts: Product[] = [];
-        setDebug(`Generating products from ${baseProducts.length} base products...`);
-        
-        // Directly use base products for debugging
-        for (let i = 0; i < Math.min(baseProducts.length * 3, 9); i++) {
-          const baseProduct = baseProducts[i % baseProducts.length];
-          setDebug(`Processing product ${i+1}: ${baseProduct.title}`);
-          
-          const priceAdjustment = selectedPersona.preferences.priceWeight;
-          const personalizedPrice = baseProduct.basePrice! * (1 + (priceAdjustment - 0.5) * 0.4);
-          const discount = Math.floor(Math.random() * 30 + 10);
-          const originalPrice = personalizedPrice * (1 + discount / 100);
-
-          personalizedProducts.push({
-            ...baseProduct,
-            id: `${baseProduct.id}-${i}`,
-            price: personalizedPrice,
-            originalPrice: originalPrice,
-            discount: discount,
-            match: Math.floor(Math.random() * 30 + 70),
-            stockStatus: Math.random() > 0.7 ? "Limited Stock" : "In Stock",
-            delivery: "Free Prime Delivery",
-          });
-        }
-        
-        setDebug(`Generated ${personalizedProducts.length} products`);
-        console.log('Generated products:', personalizedProducts);
-        setProducts(personalizedProducts);
-        
-        // Initialize animation states for each product
-        const newAnimationStates: AnimationStates = {};
-        personalizedProducts.forEach((product) => {
-          newAnimationStates[product.id] = Math.random() > 0.5 ? 'up' : 'down';
-        });
-        setAnimationStates(newAnimationStates);
-      };
-
-      generatePersonalizedProducts();
-    } catch (error) {
-      console.error('Error generating products:', error);
-      setDebug(`Error: ${error instanceof Error ? error.message : String(error)}`);
-    }
-  }, [selectedPersona]);
-
-  const handleSearch = () => {
-    console.log("Search initiated with query:", searchQuery);
-    // Add your search logic here.
-  };
-
-  const handleReasoningToggle = () => {
-    setReasoningEnabled(prev => !prev);
-    const newAnimationStates: AnimationStates = {};
-    products.forEach((product) => {
-      newAnimationStates[product.id] = Math.random() > 0.5 ? 'up' : 'down';
-    });
-    setAnimationStates(newAnimationStates);
-  };
-
-  const getAnimationClasses = (productId: string | number) => {
-    const baseClasses = "transform transition-all duration-500 ease-in-out";
-    if (!reasoningEnabled) return baseClasses;
-    return `${baseClasses} ${animationStates[productId] === 'up' ? '-translate-y-4' : 'translate-y-4'}`;
-  };
+  
+  // Use custom hooks
+  const { isDarkMode, setIsDarkMode, themeStyles } = useTheme(true);
+  const { products, standardResults, aiResults, animationStates, debug } = useProductData(selectedPersona);
+  const { 
+    isAIMode, 
+    previousResults,
+    animationEnabled,
+    searchQuery,
+    setSearchQuery,
+    vectorSearchEnabled,
+    setVectorSearchEnabled,
+    rerankerEnabled,
+    setRerankerEnabled,
+    reasoningEnabled,
+    setReasoningEnabled,
+    handleModeToggle,
+    handleSearch,
+    summary,
+    displayResults
+  } = useSearchMode(standardResults, aiResults);
+  
+  const { bgMain, textMain } = themeStyles;
 
   return (
     <div className={`${bgMain} min-h-screen`}>
@@ -119,37 +53,43 @@ const EcommerceRecommendation: React.FC = () => {
         handleSearch={handleSearch}
         isDarkMode={isDarkMode}
         setIsDarkMode={setIsDarkMode}
-        headerBg={headerBg}
+        headerBg={themeStyles.headerBg}
         textMain={textMain}
-        searchBg={searchBg}
-        placeholderColor={placeholderColor}
-        searchBtnStyle={searchBtnStyle}
+        searchBg={themeStyles.searchBg}
+        placeholderColor={themeStyles.placeholderColor}
+        searchBtnStyle={themeStyles.searchBtnStyle}
         userPersonas={userPersonas}
       />
       
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Debug info */}
-        <div className={`mb-4 p-4 border border-gray-700 rounded ${textMain}`}>
-          <h3 className="font-bold">Debug Info:</h3>
-          <p>{debug}</p>
-          <p>Products loaded: {products.length}</p>
-          <button 
-            className="px-3 py-1 bg-blue-600 text-white rounded mt-2"
-            onClick={() => console.log('Current products:', products)}
-          >
-            Log Products to Console
-          </button>
-        </div>
+        {/* Debug info panel */}
+        <DebugPanel 
+          debug={debug} 
+          products={products} 
+          isDarkMode={isDarkMode} 
+          themeStyles={themeStyles} 
+        />
         
-        <ProductGrid
-          products={products}
-          animationStates={animationStates}
-          reasoningEnabled={reasoningEnabled}
-          setReasoningEnabled={setReasoningEnabled}
-          handleReasoningToggle={handleReasoningToggle}
-          getAnimationClasses={getAnimationClasses}
-          cardBg={cardBg}
+        {/* Search Mode Toggle */}
+        <SearchModeToggle 
+          isAIMode={isAIMode}
+          handleModeToggle={handleModeToggle}
+          isDarkMode={isDarkMode}
           textMain={textMain}
+          summary={summary}
+        />
+        
+        {/* Product Results Grid */}
+        <ProductGrid 
+          results={displayResults} 
+          previousResults={previousResults}
+          selectedStore={reasoningEnabled ? "All Stores" : "All Stores"}
+          animationEnabled={animationEnabled}
+          isAIMode={isAIMode}
+          isDarkMode={isDarkMode}
+          cardBg={themeStyles.cardBg}
+          textMain={textMain}
+          showRankChanges={isAIMode}
         />
       </main>
     </div>
