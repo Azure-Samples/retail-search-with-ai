@@ -70,3 +70,71 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Card flip animation styles */
+.card-container {
+  perspective: 1000px;
+  height: 100%;
+  width: 100%;
+  display: flex;
+}
+
+.card-flipper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+}
+
+.card-front, 
+.card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden; /* Safari */
+  backface-visibility: hidden;
+  border-radius: 0.75rem; /* rounded-xl */
+  overflow: hidden; /* Change from auto to hidden */
+  display: flex;
+  flex-direction: column;
+}
+
+.card-back {
+  transform: rotateY(180deg);
+}
+
+.flipped {
+  transform: rotateY(180deg);
+}
+
+/* Ensure content within cards doesn't overflow */
+.card-content {
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Ensure cards have minimum height */
+.grid > div {
+  min-height: 500px;
+  height: 100%;
+}
+
+/* More compact text for cards */
+.card-front h3, .card-back h3 {
+  font-size: 1.1rem;
+  line-height: 1.3;
+}
+
+.card-front .text-sm, .card-back .text-sm {
+  font-size: 0.8rem;
+}
+
+/* Reduce spacing in cards */
+.card-compact-spacing {
+  margin-bottom: 0.5rem;
+}
+
+.card-compact-padding {
+  padding: 0.75rem;
+}

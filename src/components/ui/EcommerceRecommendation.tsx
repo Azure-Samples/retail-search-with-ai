@@ -15,6 +15,7 @@ const EcommerceRecommendation: React.FC = () => {
   const [rerankerEnabled, setRerankerEnabled] = useState<boolean>(false);
   const [reasoningEnabled, setReasoningEnabled] = useState<boolean>(false);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+  const [debug, setDebug] = useState<string>('Initializing...');
 
   // Theme variables
   const bgMain = isDarkMode ? "bg-gray-900" : "bg-white";
@@ -28,42 +29,58 @@ const EcommerceRecommendation: React.FC = () => {
     : "bg-blue-200 hover:bg-blue-300 text-blue-900";
 
   useEffect(() => {
-    const generatePersonalizedProducts = () => {
-      const personalizedProducts: Product[] = [];
-      for (let i = 0; i < 8; i++) {
-        const baseProduct = baseProducts[i % baseProducts.length];
-        const priceAdjustment = selectedPersona.preferences.priceWeight;
-        const qualityFeatures = selectedPersona.preferences.qualityWeight > 0.7;
-        
-        const personalizedPrice = baseProduct.basePrice! * (1 + (priceAdjustment - 0.5) * 0.4);
-        const discount = Math.floor(Math.random() * 30 + 10);
-        const originalPrice = personalizedPrice * (1 + discount / 100);
-
-        personalizedProducts.push({
-          ...baseProduct,
-          id: `${baseProduct.id}-${i}`,
-          price: personalizedPrice,
-          originalPrice: originalPrice,
-          discount: discount,
-          features: qualityFeatures 
-            ? [...baseProduct.features, "Extended warranty", "Premium support"]
-            : baseProduct.features,
-          match: Math.floor(Math.random() * 30 + 70),
-          stockStatus: Math.random() > 0.7 ? "Limited Stock" : "In Stock",
-          delivery: "Free Prime Delivery"
-        });
-      }
-      setProducts(personalizedProducts);
+    try {
+      setDebug('Loading products...');
+      console.log('Base products:', baseProducts);
       
-      // Initialize animation states for each product
-      const newAnimationStates: AnimationStates = {};
-      personalizedProducts.forEach((product) => {
-        newAnimationStates[product.id] = Math.random() > 0.5 ? 'up' : 'down';
-      });
-      setAnimationStates(newAnimationStates);
-    };
+      if (!baseProducts || baseProducts.length === 0) {
+        setDebug('Error: No base products found');
+        return;
+      }
+      
+      const generatePersonalizedProducts = () => {
+        const personalizedProducts: Product[] = [];
+        setDebug(`Generating products from ${baseProducts.length} base products...`);
+        
+        // Directly use base products for debugging
+        for (let i = 0; i < Math.min(baseProducts.length * 3, 9); i++) {
+          const baseProduct = baseProducts[i % baseProducts.length];
+          setDebug(`Processing product ${i+1}: ${baseProduct.title}`);
+          
+          const priceAdjustment = selectedPersona.preferences.priceWeight;
+          const personalizedPrice = baseProduct.basePrice! * (1 + (priceAdjustment - 0.5) * 0.4);
+          const discount = Math.floor(Math.random() * 30 + 10);
+          const originalPrice = personalizedPrice * (1 + discount / 100);
 
-    generatePersonalizedProducts();
+          personalizedProducts.push({
+            ...baseProduct,
+            id: `${baseProduct.id}-${i}`,
+            price: personalizedPrice,
+            originalPrice: originalPrice,
+            discount: discount,
+            match: Math.floor(Math.random() * 30 + 70),
+            stockStatus: Math.random() > 0.7 ? "Limited Stock" : "In Stock",
+            delivery: "Free Prime Delivery",
+          });
+        }
+        
+        setDebug(`Generated ${personalizedProducts.length} products`);
+        console.log('Generated products:', personalizedProducts);
+        setProducts(personalizedProducts);
+        
+        // Initialize animation states for each product
+        const newAnimationStates: AnimationStates = {};
+        personalizedProducts.forEach((product) => {
+          newAnimationStates[product.id] = Math.random() > 0.5 ? 'up' : 'down';
+        });
+        setAnimationStates(newAnimationStates);
+      };
+
+      generatePersonalizedProducts();
+    } catch (error) {
+      console.error('Error generating products:', error);
+      setDebug(`Error: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }, [selectedPersona]);
 
   const handleSearch = () => {
@@ -109,7 +126,21 @@ const EcommerceRecommendation: React.FC = () => {
         searchBtnStyle={searchBtnStyle}
         userPersonas={userPersonas}
       />
+      
       <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Debug info */}
+        <div className={`mb-4 p-4 border border-gray-700 rounded ${textMain}`}>
+          <h3 className="font-bold">Debug Info:</h3>
+          <p>{debug}</p>
+          <p>Products loaded: {products.length}</p>
+          <button 
+            className="px-3 py-1 bg-blue-600 text-white rounded mt-2"
+            onClick={() => console.log('Current products:', products)}
+          >
+            Log Products to Console
+          </button>
+        </div>
+        
         <ProductGrid
           products={products}
           animationStates={animationStates}

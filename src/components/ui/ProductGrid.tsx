@@ -23,6 +23,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   cardBg,
   textMain
 }) => {
+  // Debug info
+  console.log("ProductGrid rendering with", products.length, "products");
+  console.log("Sample product:", products[0]);
+  
   return (
     <>
       <div className="flex items-center justify-between mb-8">
@@ -36,19 +40,34 @@ const ProductGrid: React.FC<ProductGridProps> = ({
             Enable AI Reasoning
           </Label>
         </div>
+        
+        <div className={`text-sm ${textMain}`}>
+          <p>Tip: Click on a product card or the rotate icon to see AI reasoning details</p>
+        </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map(product => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            animationClass={getAnimationClasses(product.id)}
-            cardBg={cardBg}
-            textMain={textMain}
-          />
-        ))}
+      {/* Debug info display */}
+      <div className={`mb-4 ${textMain}`}>
+        <p>Debug: {products.length} products available</p>
       </div>
+      
+      {products.length === 0 ? (
+        <div className={`p-4 border border-red-500 rounded ${textMain}`}>
+          No products to display. Check product data.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" style={{minHeight: '500px'}}>
+          {products.map(product => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              animationClass={getAnimationClasses(product.id)}
+              cardBg={cardBg}
+              textMain={textMain}
+            />
+          ))}
+        </div>
+      )}
     </>
   );
 };
