@@ -1,7 +1,10 @@
+// src/hooks/useProductData.ts
 import { useState, useEffect } from 'react';
 import { UserPersona, Product, AnimationStates } from '../components/types';
 import { baseProducts } from '../data/baseProducts';
 import { SearchResult } from '../types/search';
+import { apiClient } from '@/services/apiClient';
+import { SearchResponse, SearchProgress } from '@/types/api';
 
 // Define proper types for the AI reasoning generation
 interface AIReasoning {
@@ -20,6 +23,16 @@ export function useProductData(selectedPersona: UserPersona) {
   const [aiResults, setAIResults] = useState<SearchResult[]>([]);
   const [animationStates, setAnimationStates] = useState<AnimationStates>({});
   const [debug, setDebug] = useState<string>('Initializing...');
+  
+  // New state for API integration
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [searchId, setSearchId] = useState<string | null>(null);
+  const [searchProgress, setSearchProgress] = useState<{
+    stage: SearchProgress;
+    message: string;
+    percentage: number;
+  } | null>(null);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -176,12 +189,97 @@ export function useProductData(selectedPersona: UserPersona) {
     };
   };
 
+  // New methods for API integration
+  const performSearch = async (query: string) => {
+    try {
+      setIsLoading(true);
+      setSearchError(null);
+      setDebug(`Initiating search for query: ${query}`);
+      
+      // Create the search request
+      const searchRequest = {
+        query,
+        customer: selectedPersona.id,
+        vectorSearchEnabled: true,
+        rerankerEnabled: true,
+        reasoningEnabled: true
+      };
+      
+      // Initiate the search
+      const id = await apiClient.initiateSearch(searchRequest);
+      setSearchId(id);
+      setDebug(`Search initiated with ID: ${id}`);
+      
+      // Start polling for progress
+      pollSearchProgress(id);
+    } catch (error) {
+      console.error('Error initiating search:', error);
+      setSearchError(`Failed to start search: ${error instanceof Error ? error.message : String(error)}`);
+      setIsLoading(false);
+      setDebug(`Search error: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+  
+  const pollSearchProgress = async (id: string) => {
+    try {
+      const progress = await apiClient.getSearchProgress(id);
+      
+      // Update state with progress information
+      setSearchProgress({
+        stage: progress.stage,
+        message: progress.message,
+        percentage: progress.percentage
+      });
+      setDebug(`Search progress: ${progress.stage} - ${progress.percentage}% - ${progress.message}`);
+      
+      // If still in progress, poll again after a delay
+      if (progress.stage !== SearchProgress.COMPLETE && 
+          progress.stage !== SearchProgress.ERROR) {
+        setTimeout(() => pollSearchProgress(id), 1000);
+      } else if (progress.stage === SearchProgress.COMPLETE) {
+        // Search completed, fetch the results
+        const results = await apiClient.getSearchResults(id);
+        processSearchResults(results);
+        setIsLoading(false);
+        setDebug(`Search completed successfully: ${results.standardResults.length} standard results, ${results.aiResults.length} AI results`);
+      } else {
+        // Error occurred
+        setSearchError(`Search failed: ${progress.message}`);
+        setIsLoading(false);
+        setDebug(`Search failed: ${progress.message}`);
+      }
+    } catch (error) {
+      console.error('Error polling search progress:', error);
+      setSearchError(`Error polling search progress: ${error instanceof Error ? error.message : String(error)}`);
+      setIsLoading(false);
+      setDebug(`Error polling progress: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+  
+  const processSearchResults = (response: SearchResponse) => {
+    setStandardResults(response.standardResults);
+    setAIResults(response.aiResults);
+    
+    // Initialize animation states
+    const newAnimationStates: AnimationStates = {};
+    response.aiResults.forEach((result) => {
+      newAnimationStates[result.id] = (result.rankChange || 0) > 0 ? 'up' : 'down';
+    });
+    setAnimationStates(newAnimationStates);
+  };
+
   return {
     products,
     standardResults,
     aiResults,
     animationStates,
     setAnimationStates,
-    debug
+    debug,
+    // New return values for API integration
+    isLoading,
+    searchId,
+    searchProgress,
+    searchError,
+    performSearch,
   };
 }

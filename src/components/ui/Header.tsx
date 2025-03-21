@@ -1,3 +1,4 @@
+// src/components/ui/Header.tsx
 import React from 'react';
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -25,6 +26,7 @@ interface HeaderProps {
   placeholderColor: string;
   searchBtnStyle: string;
   userPersonas: UserPersona[];
+  isSearching?: boolean; // New prop to indicate search in progress
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -46,7 +48,8 @@ const Header: React.FC<HeaderProps> = ({
   searchBg,
   placeholderColor,
   searchBtnStyle,
-  userPersonas
+  userPersonas,
+  isSearching = false
 }) => {
   return (
     <header className={headerBg}>
@@ -74,6 +77,7 @@ const Header: React.FC<HeaderProps> = ({
           setSelectedPersona={setSelectedPersona}
           isDarkMode={isDarkMode}
           textMain={textMain}
+          disabled={isSearching} // Disable persona selection during search
         />
         
         {/* Search Bar */}
@@ -92,6 +96,7 @@ const Header: React.FC<HeaderProps> = ({
           searchBg={searchBg}
           placeholderColor={placeholderColor}
           searchBtnStyle={searchBtnStyle}
+          isSearching={isSearching}
         />
       </div>
     </header>
