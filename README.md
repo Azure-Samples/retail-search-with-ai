@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI-Powered Product Search
 
-## Getting Started
+This project demonstrates an AI-enhanced product search experience with reasoning capabilities. It consists of a Next.js frontend and a FastAPI backend.
 
-First, run the development server:
+## Project Overview
+
+The application showcases how AI can improve product search by:
+- Providing transparent reasoning for search results
+- Personalizing results based on user personas
+- Comparing traditional and AI-enhanced search approaches
+- Visualizing search confidence and ranking metrics
+
+## Prerequisites
+
+- Node.js 16+ for the frontend
+- Python 3.8+ for the backend
+- Conda for environment management
+
+## Setup
+
+### Frontend Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Install dependencies
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Backend Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Create and activate conda environment
+conda create -n recommendation-reasoning python=3.9
+conda activate recommendation-reasoning
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Install backend dependencies
+cd backend
+pip install -r requirements.txt
+```
+
+## Running the Application
+
+### Running the Frontend
+
+```bash
+# From the project root
+npm run dev
+```
+
+The frontend will be available at [http://localhost:3000](http://localhost:3000).
+
+### Running the Backend
+
+```bash
+# From the backend directory
+cd backend
+uvicorn main:app --reload
+```
+
+The API will be available at [http://localhost:8000](http://localhost:8000).
+
+### Running Both Together
+
+We've provided a convenience script to run both services at once:
+
+```bash
+# Make the script executable
+chmod +x run.sh
+
+# Run both services
+./run.sh
+```
+
+## API Documentation
+
+When the backend is running, API documentation is available at:
+- Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
+- ReDoc: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+
+## Project Structure
+
+- `frontend/`: Next.js frontend application
+- `backend/`: FastAPI backend application
+  - `services/`: Core service implementations
+  - `models/`: Data models and schemas
+  - `config/`: Configuration settings
+  - `utils/`: Utility functions
+  - `data/`: Static data files
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js Documentation](https://nextjs.org/docs)
+- [FastAPI Documentation](https://fastapi.tiangolo.com/)
