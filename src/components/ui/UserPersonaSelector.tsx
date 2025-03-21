@@ -1,3 +1,4 @@
+// src/components/ui/UserPersonaSelector.tsx
 import React from 'react';
 import { UserPersona } from '../types';
 
@@ -7,6 +8,7 @@ interface UserPersonaSelectorProps {
   setSelectedPersona: (persona: UserPersona) => void;
   isDarkMode: boolean;
   textMain: string;
+  disabled?: boolean;
 }
 
 const UserPersonaSelector: React.FC<UserPersonaSelectorProps> = ({ 
@@ -14,15 +16,16 @@ const UserPersonaSelector: React.FC<UserPersonaSelectorProps> = ({
   selectedPersona, 
   setSelectedPersona,
   isDarkMode,
-  textMain
+  textMain,
+  disabled = false
 }) => {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
       {userPersonas.map((persona) => (
         <button
           key={persona.id}
-          onClick={() => setSelectedPersona(persona)}
-          className={`flex flex-col items-center p-6 rounded-2xl transition transform hover:scale-105 shadow-md ${
+          onClick={() => !disabled && setSelectedPersona(persona)}
+          className={`flex flex-col items-center p-6 rounded-2xl transition transform ${disabled ? 'cursor-not-allowed opacity-70' : 'hover:scale-105'} shadow-md ${
             selectedPersona.id === persona.id
               ? (isDarkMode 
                   ? 'bg-blue-900 text-blue-100 ring-2 ring-blue-500' 
@@ -31,6 +34,7 @@ const UserPersonaSelector: React.FC<UserPersonaSelectorProps> = ({
                   ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
           }`}
+          disabled={disabled}
         >
           <img
             src={`https://i.pravatar.cc/100?u=${persona.id}`}
