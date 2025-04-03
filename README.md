@@ -1,137 +1,126 @@
-# Retail Search with AI
-Enhanced search for Retail and e-Commerce using various AI models
+# AI-Powered Product Search
 
-## Business Value of AI-Enhanced Search
+This project demonstrates an AI-enhanced product search experience with reasoning capabilities. It consists of a Next.js frontend and a FastAPI backend.
 
-Traditional keyword-based search systems often fail to understand customer intent, context, and preferences, leading to irrelevant results and lost sales opportunities. This project implements a sophisticated two-stage AI-powered retail search system that significantly improves search relevancy and conversion rates:
+## Project Overview
 
-### Stage 1: Query Discovery & Expansion
-The system analyzes the user's query and customer profile to:
-- Expand search terms based on customer intent
-- Identify relevant product categories
-- Apply appropriate filters (price range, brand preferences, etc.)
-- Consider customer purchase history and preferences
+The application showcases how AI can improve product search by:
+- Providing transparent reasoning for search results
+- Personalizing results based on user personas
+- Comparing traditional and AI-enhanced search approaches
+- Visualizing search confidence and ranking metrics
 
-### Stage 2: Intelligent Product Recommendation
-After retrieving initial results, the AI system:
-- Re-ranks products based on customer profile
-- Considers purchase history and preferences
-- Provides personalized product recommendations
-- Adds contextual justification for recommendations
+## Smart Shopping Assistant
 
-### Business Impact
+The Smart Shopping Assistant transforms online shopping by tailoring product recommendations to your unique preferences and shopping style. The platform adapts its search results and product rankings based on your selected shopping persona, ensuring you discover products that truly align with your priorities.
 
-**Increased Conversion Rates:** Studies show that relevant search results can increase conversion by 50-80%. This system ensures customers find what they're actually looking for, not just what matches keywords.
+### Shopping Personas
 
-**Higher Average Order Value:** Personalized recommendations drive cross-selling and upselling opportunities, increasing basket size.
+The application features four distinct shopping personas that represent different consumer priorities:
 
-**Reduced Search Abandonment:** By understanding customer intent, even vague queries yield relevant results, reducing search abandonment rates.
+1. **Luxury Diva**: Prioritizes premium brands and high-quality products
+2. **Smart Saver**: Focuses on value and finding the best deals
+3. **Tech Maven**: Favors innovation and the latest technologies
+4. **Eco Warrior**: Emphasizes sustainable and environmentally friendly options
 
-**Enhanced Customer Loyalty:** Personalized search experiences increase customer satisfaction and loyalty, driving repeat purchases.
+This approach eliminates hours of product comparison by instantly identifying items that match specific user preferences.
 
-**Competitive Advantage:** Advanced AI search capabilities provide a significant edge over competitors using traditional keyword search.
+### Key Features
 
-**ROI Measurement:** The evaluation framework allows organizations to measure and optimize the performance of different AI models against business KPIs.
+#### Standard Product Search
+The platform provides a conventional search experience where you can enter keywords (such as "headphones") to find relevant products. In standard mode, results are displayed based on traditional ranking factors without personalization.
+ 
+#### AI-Powered Personalization
+When you enable AI Reasoning mode via the toggle switch, the system activates its advanced recommendation engine. This feature:
+- Dynamically reranks products based on your selected persona's preferences
+- Displays match percentage scores on each product card, indicating compatibility with the user profile
+- Shows ranking changes through visual indicators, allowing you to see how products move up or down in relevance
+ 
+#### Transparent Recommendation Logic
+Unlike typical "black box" recommendation systems, the application provides complete transparency into why certain products are recommended:
+- Product cards can be flipped to reveal detailed reasoning behind each recommendation
+- The system displays feature-by-feature analysis of how each product attribute was evaluated
+- Quality, brand recognition, price sensitivity, and other factors are scored based on your persona's preference weights
 
-## Setup Instructions
+This transparency ensures users understand exactly why certain products are recommended, giving them confidence in purchasing decisions while maintaining complete control over their shopping experience.
 
-1. Fill in the `.env` file with the necessary environment variables:
+## Prerequisites
 
-```
-SEARCH_SERVICE_NAME=<your_search_service_name>
-SEARCH_INDEX_NAME=<your_search_index_name>
-SEARCH_API_KEY=<your_search_api_key>
-```
+- Node.js 16+ for the frontend
+- Python 3.8+ for the backend
+- Conda for environment management
 
-2. Install and run the server:
+## Setup
+
+### Frontend Setup
 
 ```bash
-# create the conda environment
-conda create -n ecomm python=3.11
-
-# activate the conda environment
-conda activate ecomm
-
-# install the requirements
-pip install -r requirements.txt
-
-# run the server
-python server.py
+# Install dependencies
+npm install
 ```
 
-3. Browse to `localhost:80`.
+### Backend Setup
+
+```bash
+# Create and activate conda environment
+conda create -n recommendation-reasoning python=3.9
+conda activate recommendation-reasoning
+
+# Install backend dependencies
+cd backend
+pip install -r requirements.txt
+```
+
+## Running the Application
+
+### Running the Frontend
+
+```bash
+# From the project root
+npm run dev
+```
+
+The frontend will be available at [http://localhost:3000](http://localhost:3000).
+
+### Running the Backend
+
+```bash
+# From the backend directory
+cd backend
+uvicorn main:app --reload
+```
+
+The API will be available at [http://localhost:8000](http://localhost:8000).
+
+### Running Both Together
+
+We've provided a convenience script to run both services at once:
+
+```bash
+# Make the script executable
+chmod +x run.sh
+
+# Run both services
+./run.sh
+```
+
+## API Documentation
+
+When the backend is running, API documentation is available at:
+- Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
+- ReDoc: [http://localhost:8000/redoc](http://localhost:8000/redoc)
 
 ## Project Structure
 
-- `env_vars.py`: Environment variables configuration
-- `evals.py`: Evaluation logic for comparing AI models
-- `server.py`: FastAPI server setup and endpoints
-- `search/`: Contains search-related logic and configurations
-  - `azure_search.py`: Azure AI Search integration
-  - `config.py`: Configuration for Azure Search and prompt files
-  - `retail_search_ai.py`: AI-based search and recommendation logic
-  - `search_data_models.py`: Data models for search requests and responses
-  - `search_processing.py`: Search processing logic
-- `utils/`: Utility functions and helpers
-- `customer_profiles/`: Sample customer profiles in JSON format
-- `evaluations/`: Directory for storing evaluation results
-- `images/`: Directory for storing images
-- `prompts/`: Directory for storing prompt templates
-- `ui/`: Directory for React UI app
+- `frontend/`: Next.js frontend application
+- `backend/`: FastAPI backend application
+  - `services/`: Core service implementations
+  - `models/`: Data models and schemas
+  - `config/`: Configuration settings
+  - `utils/`: Utility functions
+  - `data/`: Static data files
 
-## AI Search Architecture
+## Learn More
 
-![AI Search Overview](images/ecomm_ai_search.png)
-
-## Model Comparison and Evaluation
-
-This project includes a robust framework for comparing different AI models (Azure OpenAI) with varying reasoning efforts (low, medium, high). The evaluation system:
-
-1. Generates realistic customer queries based on profiles
-2. Processes those queries through different AI models
-3. Compares search results using objective metrics
-4. Produces JSONL reports to quantify performance differences
-
-This allows organizations to select the optimal model for their specific use case, balancing performance with cost considerations.
-
-## API Endpoints
-
-### List Customers
-
-```
-GET /api/customers
-```
-
-Returns a list of customer profile filenames.
-
-### Get Customer Profile
-
-```
-GET /api/customer/{filename}
-```
-
-Returns the customer profile data for the specified filename.
-
-### Retail Search
-
-```
-POST /api/retail_search
-```
-
-Accepts search parameters and returns search results.
-
-### Search Endpoint
-
-```
-POST /api/search
-```
-
-Accepts search parameters and returns search results from both sides (comparison).
-
-## Evaluation
-
-The `evaluate` function in `evals.py` is used to evaluate the performance of different AI models based on customer queries and profiles. The results are stored in JSONL format in the `evaluations` directory.
-
-## Query Generation
-
-The `generate_queries` function in `evals.py` is used to generate customer queries based on profiles and product categories. The generated queries are stored in JSONL format in the `evaluations` directory.
+- [Next.js Documentation](https://nextjs.org/docs)
+- [FastAPI Documentation](https://fastapi.tiangolo.com/)
